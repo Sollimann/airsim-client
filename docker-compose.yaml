@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  airsim:
+    container_name: airsim
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    runtime: nvidia
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/tmp/.X11-unix
+      - NVIDIA_VISIBLE_DEVICES=all
+    volumes:
+      - '/tmp/.docker.xauth:/tmp/.docker.xauth'
+      - '/tmp/.X11-unix:/tmp/.X11-unix'
+      - '/etc/localtime:/etc/localtime:ro'
+      - '/dev/input:/dev/input'
+    security_opt:
+      - seccomp:unconfined
