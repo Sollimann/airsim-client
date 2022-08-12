@@ -1,0 +1,5 @@
+{
+    "files.insertFinalNewline": true,
+    "rust-analyzer.procMacro.enable": false,
+    "rust-analyzer.checkOnSave.command": "clippy"
+}

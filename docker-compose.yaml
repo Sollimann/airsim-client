@@ -17,5 +17,7 @@ services:
       - '/tmp/.X11-unix:/tmp/.X11-unix'
       - '/etc/localtime:/etc/localtime:ro'
       - '/dev/input:/dev/input'
+    network_mode: host
+    privileged: true
     security_opt:
       - seccomp:unconfined
