@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-std = "1.12.2"
+async-std = "1.12.0"
 async-trait = "0.1.57"
 rmp-rpc = "0.3"
 rmpv = "0.4"
