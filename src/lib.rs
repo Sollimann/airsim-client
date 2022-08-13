@@ -1,3 +1,9 @@
+pub use msgpack::MsgPackClient;
+pub use error::{NetworkError, DecodeError};
+
+mod msgpack;
+mod error;
+
 #[cfg(test)]
 mod tests {
     #[test]

@@ -1,8 +1,18 @@
 [package]
 name = "airsim-client"
+authors = ["Kristoffer Solberg Rakstad <kristoffer.solberg@cognite.com>"]
 version = "0.1.0"
+autotests = false
+categories = ["game"]
+description = "A Rust client library for Airsim."
+documentation = "https://docs.rs/airsim-client"
 edition = "2021"
-
+homepage = "https://github.com/sollimann/airsim-client"
+keywords = ["drone", "unreal", "airsim", "robotics", "game"]
+license = "MIT"
+readme = "../README.md"
+repository = "https://github.com/sollimann/airsim-client.git"
+rust-version = "1.60.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -11,4 +21,5 @@ async-trait = "0.1.57"
 rmp-rpc = "0.3"
 rmpv = "0.4"
 futures = "0.3.21"
+thiserror = "1.0"
 
