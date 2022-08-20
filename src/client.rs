@@ -187,7 +187,7 @@ impl MultiRotorClient {
         let vehicle_name: Utf8String = vechile_name.unwrap_or("").into();
 
         self.unary_rpc(
-            "takeOffAsync".into(),
+            "takeoff".into(),
             Some(vec![Value::Integer(timeout_sec.into()), Value::String(vehicle_name)]),
         )
         .await
