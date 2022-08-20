@@ -84,7 +84,7 @@ impl MultiRotorClient {
     /// If connection is established then this call will return `True` otherwise
     /// the request will be blocked until timeout (default value)
     pub async fn ping(&self) -> NetworkResult<bool> {
-        self.unary_rpc("reset".to_owned(), None)
+        self.unary_rpc("ping".to_owned(), None)
             .await
             .map(|res| {
                 res.result
