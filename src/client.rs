@@ -178,6 +178,23 @@ impl MultiRotorClient {
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Takeoff vehicle to 3m above ground. Vehicle should not be moving when this API is used
+    ///
+    /// Args:
+    ///     timeout_sec (Option<u64>): Timeout for the vehicle to reach desired altitude
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub async fn take_off_async(&self, timeout_sec: u64, vechile_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vechile_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "takeOffAsync".into(),
+            Some(vec![Value::Integer(timeout_sec.into()), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
     #[allow(deprecated)]
     fn new_request_id(&self) -> u32 {
         self.last_request_id
