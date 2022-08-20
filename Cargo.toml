@@ -29,5 +29,5 @@ env_logger = "0.9.0"
 
 [[example]]
 crate-type = ["bin"]
-name = "robot_status"        # examples/robot_status/main.rs
+name = "connect_drone"
 path = "examples/connect.rs"
