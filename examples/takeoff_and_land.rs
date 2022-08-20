@@ -23,16 +23,21 @@ async fn connect_drone() -> NetworkResult<()> {
     client.arm_disarm(true, Some(vehicle_name)).await?;
     log::info!("Response: {:?}", res);
 
-    // reset drone
-    task::sleep(Duration::from_secs(1)).await;
-    log::info!("reset drone");
-    let res = client.reset().await?;
+    // take off
+    log::info!("take off drone");
+    client.take_off_async(20, Some(vehicle_name)).await?;
     log::info!("Response: {:?}", res);
 
-    // disarm drone
-    log::info!("disarm drone");
-    client.arm_disarm(false, Some(vehicle_name)).await?;
-    log::info!("Response: {:?}", res);
+    // reset drone
+    // task::sleep(Duration::from_secs(1)).await;
+    // log::info!("reset drone");
+    // let res = client.reset().await?;
+    // log::info!("Response: {:?}", res);
+
+    // // disarm drone
+    // log::info!("disarm drone");
+    // client.arm_disarm(false, Some(vehicle_name)).await?;
+    // log::info!("Response: {:?}", res);
 
     log::info!("Done!");
     Ok(())
