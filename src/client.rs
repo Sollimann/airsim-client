@@ -107,8 +107,8 @@ impl MultiRotorClient {
         let server_v = self.get_server_version().await?;
         let server_min_v = self.get_min_required_server_version();
 
-        log::info!("Client version: {} , Min required:{} ", client_v, client_min_v);
-        log::info!("Server version: {} , Min required:{} ", server_v, server_min_v);
+        log::info!("Client version: {} , Min required: {} ", client_v, client_min_v);
+        log::info!("Server version: {} , Min required: {} ", server_v, server_min_v);
 
         if server_v < server_min_v {
             log::error!("AirSim server is of older version and not supported by this client. Please upgrade!")
