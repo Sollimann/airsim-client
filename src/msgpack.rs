@@ -12,6 +12,7 @@ use std::io::Cursor;
 use crate::error::NetworkResult;
 use crate::NetworkError;
 
+/// msgpack client used to interface with the airsim msgpack server
 pub struct MsgPackClient {
     request_sender: Sender<Request>,
     notification_sender: Sender<Notification>,
@@ -26,6 +27,8 @@ enum Rpc {
 }
 
 impl MsgPackClient {
+    /// Establish a TCP socket connection to the `MessagePack-RPC` server
+    /// running in a background thread
     pub async fn connect(addrs: impl ToSocketAddrs) -> NetworkResult<Self> {
         let mut stream = TcpStream::connect(addrs).await?;
         let response_channels = Arc::new(Mutex::new(HashMap::new()));

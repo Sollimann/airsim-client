@@ -1,4 +1,4 @@
-use async_std::{channel::RecvError, net::ToSocketAddrs};
+use async_std::net::ToSocketAddrs;
 use rmp_rpc::message::{Notification, Request, Response};
 use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -32,18 +32,92 @@ impl MultiRotorClient {
             .map_err(Into::into)
     }
 
-    pub async fn reset(&self) -> NetworkResult<Response> {
-        self.unary_rpc("reset".to_owned(), None).await
-    }
-
-    pub async fn ping(&self) -> NetworkResult<Response> {
-        self.unary_rpc("ping".to_owned(), None).await
-    }
-
+    /// TODO
     ///
+    pub fn get_client_version(&self) -> u64 {
+        1
+    }
+
+    /// TODO
+    ///
+    async fn get_server_version(&self) -> NetworkResult<u64> {
+        self.unary_rpc("getServerVersion".to_owned(), None)
+            .await
+            .map(|res| {
+                res.result
+                    .unwrap_or_else(|_| rmpv::Value::Integer(0.into()))
+                    .as_u64()
+                    .unwrap_or(0)
+            })
+            .map_err(Into::into)
+    }
+
+    /// TODO
+    ///
+    async fn get_min_required_client_version(&self) -> NetworkResult<u64> {
+        self.unary_rpc("getMinRequiredClientVersion".to_owned(), None)
+            .await
+            .map(|res| {
+                res.result
+                    .unwrap_or_else(|_| rmpv::Value::Integer(0.into()))
+                    .as_u64()
+                    .unwrap_or(0)
+            })
+            .map_err(Into::into)
+    }
+
+    #[inline]
+    fn get_min_required_server_version(&self) -> u64 {
+        self.get_client_version()
+    }
+
+    /// Reset the vehicle to its original starting state
+    ///
+    /// Note that you must call `enable_api_control` and `arm_disarm` again after the call to reset
+    pub async fn reset(&self) -> NetworkResult<bool> {
+        self.unary_rpc("reset".to_owned(), None)
+            .await
+            .map(|res| res.result.unwrap_or_else(|_| rmpv::Value::Nil).is_nil())
+            .map_err(Into::into)
+    }
+
+    /// If connection is established then this call will return `True` otherwise
+    /// the request will be blocked until timeout (default value)
+    pub async fn ping(&self) -> NetworkResult<bool> {
+        self.unary_rpc("reset".to_owned(), None)
+            .await
+            .map(|res| {
+                res.result
+                    .unwrap_or_else(|v| rmpv::Value::Boolean(false))
+                    .as_bool()
+                    .unwrap_or(false)
+            })
+            .map_err(Into::into)
+    }
+
     /// Checks state of the connection
     ///
-    pub fn confirm_connection(&self) {}
+    pub async fn confirm_connection(&self) -> NetworkResult<bool> {
+        let connected = self.ping().await?;
+
+        log::info!("Connected to Airsim: {}", connected);
+
+        let client_v = self.get_client_version();
+        let client_min_v = self.get_min_required_client_version().await?;
+        let server_v = self.get_server_version().await?;
+        let server_min_v = self.get_min_required_server_version();
+
+        log::info!("Client version: {} , Min required:{} ", client_v, client_min_v);
+        log::info!("Server version: {} , Min required:{} ", server_v, server_min_v);
+
+        if server_v < server_min_v {
+            log::error!("AirSim server is of older version and not supported by this client. Please upgrade!")
+        } else if client_v < client_min_v {
+            log::error!("AirSim client is of older version and not supported by this server. Please upgrade!")
+        }
+
+        Ok(connected)
+    }
 
     #[allow(deprecated)]
     fn new_request_id(&self) -> u32 {
