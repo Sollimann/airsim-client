@@ -1,5 +1,8 @@
 use async_std::net::ToSocketAddrs;
-use rmp_rpc::message::{Notification, Request, Response};
+use rmp_rpc::{
+    message::{Notification, Request, Response},
+    Utf8String,
+};
 use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -11,13 +14,13 @@ pub struct MultiRotorClient {
 }
 
 impl MultiRotorClient {
-    pub async fn connect(addrs: impl ToSocketAddrs) -> NetworkResult<Self> {
+    pub async fn connect(addrs: impl ToSocketAddrs, vehicle_name: &str) -> NetworkResult<Self> {
         let drone = Self {
             last_request_id: AtomicU32::new(0),
             client: MsgPackClient::connect(addrs).await?,
         };
         drone.ping().await?;
-        // drone.enable_api_control().await?;
+        drone.enable_api_control(true, Some(vehicle_name)).await?;
         Ok(drone)
     }
 
@@ -117,6 +120,62 @@ impl MultiRotorClient {
         }
 
         Ok(connected)
+    }
+
+    /// Enables or disables API control for vehicle corresponding to vehicle_name
+    ///
+    /// args:
+    ///     is_enabled (bool): True to enable, False to disable API control
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub async fn enable_api_control(&self, is_enabled: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "enableApiControl".into(),
+            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Returns true if API control is established.
+    ///
+    /// If false (which is default) then API calls would be ignored. After a successful call
+    /// to `enableApiControl`, `isApiControlEnabled` should return true.
+    ///
+    /// args:
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub async fn is_api_control_enabled(&self, is_enabled: bool, vehicle_name: Option<String>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("".to_string()).into();
+
+        self.unary_rpc(
+            "isApiControlEnabled".into(),
+            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Returns true if API control is established.
+    ///
+    /// If false (which is default) then API calls would be ignored. After a successful call
+    /// to `enableApiControl`, `isApiControlEnabled` should return true.
+    ///
+    /// args:
+    ///     arm (bool): True to arm, False to disarm the vehicle
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub async fn arm_disarm(&self, arm: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "armDisarm".into(),
+            Some(vec![Value::Boolean(arm), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
     #[allow(deprecated)]
