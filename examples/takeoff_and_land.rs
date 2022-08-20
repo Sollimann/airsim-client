@@ -3,6 +3,12 @@ use std::time::Duration;
 use airsim_client::{MultiRotorClient, NetworkResult};
 use async_std::task;
 
+use futures::{
+    future::FutureExt, // for `.fuse()`
+    pin_mut,
+    select,
+};
+
 async fn connect_drone() -> NetworkResult<()> {
     let address = "127.0.0.1:41451";
     let vehicle_name = "";
@@ -25,7 +31,10 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // take off
     log::info!("take off drone");
-    client.take_off_async(20, Some(vehicle_name)).await?;
+    let t1 = client.take_off_async(20, Some(vehicle_name)).fuse().await?;
+    let t2 = task::sleep(Duration::from_secs(30)).fuse();
+
+    pin_mut!(t1, t2);
     log::info!("Response: {:?}", res);
 
     // reset drone
