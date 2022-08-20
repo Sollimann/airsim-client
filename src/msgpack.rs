@@ -1,9 +1,9 @@
-use async_std::channel::{bounded, Receiver, RecvError, Sender};
+use async_std::channel::{bounded, RecvError, Sender};
 use async_std::io::prelude::*;
 use async_std::net::{TcpStream, ToSocketAddrs};
 use async_std::sync::{Arc, Mutex};
 use async_std::task;
-use futures::future::{select_all, FutureExt};
+use futures::future::FutureExt;
 use futures::{pin_mut, select};
 use rmp_rpc::message::{Message, Notification, Request, Response};
 use std::collections::HashMap;
@@ -110,6 +110,7 @@ impl MsgPackClient {
                                 let sender: Sender<Response> =
                                     senders.remove(&r.id).expect("Got response but no request awaiting it");
 
+                                // send response to the `request` function
                                 let _ = sender.send(r).await;
                             }
                             Err(decode_err) => {
@@ -139,13 +140,14 @@ impl MsgPackClient {
     pub async fn request(&self, request: Request) -> Result<Response, RecvError> {
         let (response_sender, response_receiver) = bounded(1);
 
-        // TODO: check if there was something
+        // add the response sender (forwards the response from the server) by request id
         let _ = self.response_channels.lock().await.insert(request.id, response_sender);
 
-        // forward request to the thread that deals with MessagePack-RPC server
+        // forward request to the thread that then forwards it to the MessagePack-RPC server
+        // the response is added to the response channel
         let _ = self.request_sender.send(request).await;
 
-        // return result from request
+        // return result from request which is forwarded from the background thread above
         response_receiver.recv().await
     }
 

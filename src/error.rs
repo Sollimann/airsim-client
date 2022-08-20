@@ -8,9 +8,9 @@ pub type NetworkResult<T> = Result<T, NetworkError>;
 #[derive(Error, Debug)]
 pub enum NetworkError {
     #[error("received because the channel is empty or closed")]
-    Recv(RecvError),
+    Recv(#[from] RecvError),
     #[error("issue with read or write I/O operation")]
-    Io(#[from] io::Error)
+    Io(#[from] io::Error),
 }
 
 /// Error while decoding a sequence of bytes into a `MessagePack-RPC` message
@@ -70,10 +70,7 @@ impl From<io::Error> for DecodeError {
 impl From<decode::Error> for DecodeError {
     fn from(err: decode::Error) -> DecodeError {
         match err {
-            decode::Error::InvalidMarkerRead(io_err) | decode::Error::InvalidDataRead(io_err) => {
-                From::from(io_err)
-            }
+            decode::Error::InvalidMarkerRead(io_err) | decode::Error::InvalidDataRead(io_err) => From::from(io_err),
         }
     }
 }
-

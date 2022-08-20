@@ -1,8 +1,10 @@
-pub use msgpack::MsgPackClient;
-pub use error::{NetworkError, DecodeError};
+pub use client::MultiRotorClient;
+pub use error::{DecodeError, NetworkError, NetworkResult};
+pub(crate) use msgpack::MsgPackClient;
 
-mod msgpack;
+mod client;
 mod error;
+mod msgpack;
 
 #[cfg(test)]
 mod tests {

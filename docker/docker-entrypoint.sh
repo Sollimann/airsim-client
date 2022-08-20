@@ -7,5 +7,5 @@ $AIRSIM_EXECUTABLE &
 echo Waiting 10 seconds before starting app...
 sleep 10
 
-echo Starting Python app
-python3.6 /home/airsim_user/multirotor.py
+# echo Starting Python app
+# python3.6 /home/airsim_user/multirotor.py
