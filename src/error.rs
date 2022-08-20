@@ -11,6 +11,10 @@ pub enum NetworkError {
     Recv(#[from] RecvError),
     #[error("issue with read or write I/O operation")]
     Io(#[from] io::Error),
+    #[error("Could not send message: {message}")]
+    Send { message: String },
+    #[error("Could not decode the message that was received")]
+    Decode(#[from] DecodeError),
 }
 
 /// Error while decoding a sequence of bytes into a `MessagePack-RPC` message

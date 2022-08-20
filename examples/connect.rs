@@ -9,19 +9,14 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("Start!");
 
-    log::info!("ping drone");
-    let res = client.ping().await?;
+    log::info!("confirm connection");
+    let res = client.confirm_connection().await?;
     log::info!("Response: {:?}", res);
 
-    task::sleep(Duration::from_secs(1)).await;
-    log::info!("reset drone");
-    let res = client.reset().await?;
-    log::info!("Response: {:?}", res);
-
-    task::sleep(Duration::from_secs(1)).await;
-    log::info!("ping drone");
-    let res = client.ping().await?;
-    log::info!("Response: {:?}", res);
+    // task::sleep(Duration::from_secs(1)).await;
+    // log::info!("reset drone");
+    // let res = client.reset().await?;
+    // log::info!("Response: {:?}", res);
 
     log::info!("Done!");
     Ok(())
