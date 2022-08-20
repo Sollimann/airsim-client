@@ -19,13 +19,13 @@ version = "0.1.0"
 async-std = "1.12.0"
 async-trait = "0.1.57"
 futures = "0.3.21"
+log = "0.4.16"
 rmp-rpc = "0.3"
 rmpv = "0.4"
 thiserror = "1.0"
 
 [dev-dependencies]
 env_logger = "0.9.0"
-log = "0.4.16"
 
 [[example]]
 crate-type = ["bin"]
