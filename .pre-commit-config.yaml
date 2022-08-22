@@ -28,6 +28,7 @@ repos:
       - id: destroyed-symlinks
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: "^(docker/)"
       - id: file-contents-sorter
       - id: fix-byte-order-marker
       - id: fix-encoding-pragma
