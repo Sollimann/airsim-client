@@ -30,10 +30,10 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // take off
     log::info!("take off drone");
-    let t1 = client.take_off_async(20).fuse().await?;
-    let t2 = task::sleep(Duration::from_secs(30)).fuse();
+    let _t1 = client.take_off_async(20).fuse().await?;
+    let _t2 = task::sleep(Duration::from_secs(30)).fuse();
 
-    pin_mut!(t1, t2);
+    pin_mut!(_t1, _t2);
     log::info!("Response: {:?}", res);
 
     // reset drone
