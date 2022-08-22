@@ -1,8 +1,10 @@
-pub use client::MultiRotorClient;
+pub use clients::airsim_client::AirsimClient;
+pub use clients::car_client::CarClient;
+pub use clients::multi_rotor_client::MultiRotorClient;
 pub use error::{DecodeError, NetworkError, NetworkResult};
 pub(crate) use msgpack::MsgPackClient;
 
-mod client;
+mod clients;
 mod error;
 mod msgpack;
 

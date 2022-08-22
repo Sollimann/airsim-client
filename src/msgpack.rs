@@ -139,7 +139,7 @@ impl MsgPackClient {
         }
 
         // return result from request which is forwarded from the background thread above
-        response_receiver.recv().await.map_err(|e| NetworkError::Recv(e))
+        response_receiver.recv().await.map_err(NetworkError::Recv)
     }
 
     pub async fn _notify(&self, notification: Notification) -> Result<(), NetworkError> {

@@ -6,7 +6,6 @@ use async_std::task;
 use futures::{
     future::FutureExt, // for `.fuse()`
     pin_mut,
-    select,
 };
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -26,12 +25,12 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // arm drone
     log::info!("arm drone");
-    client.arm_disarm(true, Some(vehicle_name)).await?;
+    client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
     // take off
     log::info!("take off drone");
-    let t1 = client.take_off_async(20, Some(vehicle_name)).fuse().await?;
+    let t1 = client.take_off_async(20).fuse().await?;
     let t2 = task::sleep(Duration::from_secs(30)).fuse();
 
     pin_mut!(t1, t2);
