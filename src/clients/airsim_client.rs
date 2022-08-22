@@ -1,6 +1,6 @@
 use async_std::net::ToSocketAddrs;
 use rmp_rpc::{
-    message::{Notification, Request, Response},
+    message::{Request, Response},
     Utf8String,
 };
 use rmpv::Value;

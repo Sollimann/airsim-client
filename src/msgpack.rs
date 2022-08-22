@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use async_std::channel::{bounded, Receiver, Sender};
 use async_std::io::prelude::*;
 use async_std::net::{TcpStream, ToSocketAddrs};
