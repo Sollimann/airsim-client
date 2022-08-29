@@ -6,7 +6,7 @@ use rmp_rpc::{
 use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use crate::{error::NetworkResult, MsgPackClient};
+use crate::{error::NetworkResult, MsgPackClient, NetworkError};
 
 pub struct AirsimClient {
     client: MsgPackClient,
@@ -176,6 +176,50 @@ impl AirsimClient {
         .await
         .map_err(Into::into)
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Pauses simulation
+    ///
+    /// args:
+    ///     is_paused (bool): True to pause the simulation, False to release
+    pub async fn sim_pause(&self, is_paused: bool) -> NetworkResult<bool> {
+        self.unary_rpc("simPause".into(), Some(vec![Value::Boolean(is_paused)]))
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Returns True if simulation is paused
+    pub async fn sim_is_pause(&self) -> NetworkResult<bool> {
+        self.unary_rpc("simIsPause".into(), None)
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Continue the simulation for the specified number of seconds
+    ///
+    /// args:
+    ///     seconds (f64): Time to run the simulation for
+    pub async fn sim_continue_for_time(&self, seconds: f64) -> NetworkResult<()> {
+        self.unary_rpc("simContinueFortime".into(), Some(vec![Value::F64(seconds)]))
+            .await
+            .map_err::<NetworkError, _>(Into::into)?;
+
+        Ok(())
+    }
+
+    /// Continue (or resume if paused) the simulation for the specified number of frames,
+    /// after which the simulation will be paused.
+    ///
+    /// args:
+    ///     frames (i64): Frames to run the simulation for
+    pub async fn sim_continue_for_frames(&self, frames: i64) -> NetworkResult<()> {
+        self.unary_rpc("simContinueFortime".into(), Some(vec![Value::Integer(frames.into())]))
+            .await
+            .map_err::<NetworkError, _>(Into::into)?;
+
+        Ok(())
     }
 
     #[allow(deprecated)]

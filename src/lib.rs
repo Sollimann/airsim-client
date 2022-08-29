@@ -7,6 +7,7 @@ pub(crate) use msgpack::MsgPackClient;
 mod clients;
 mod error;
 mod msgpack;
+mod types;
 
 #[cfg(test)]
 mod tests {

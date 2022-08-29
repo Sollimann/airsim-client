@@ -31,10 +31,12 @@ async fn connect_drone() -> NetworkResult<()> {
     // take off
     log::info!("take off drone");
     let _t1 = client.take_off_async(20).fuse().await?;
-    let _t2 = task::sleep(Duration::from_secs(30)).fuse();
+    let _t2 = task::sleep(Duration::from_secs(10)).fuse();
 
     pin_mut!(_t1, _t2);
-    log::info!("Response: {:?}", res);
+
+    log::info!("get home geo point");
+    let x = client.get_home_geo_point();
 
     // reset drone
     // task::sleep(Duration::from_secs(1)).await;
