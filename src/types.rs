@@ -1,25 +1,28 @@
-use rmp_rpc::Value;
+use rmp_rpc::{Value, message::Response};
+
 
 #[derive(Debug)]
 pub struct GeoPoint {
-    latitude: f64,
-    longitude: f64,
-    altitude: f64,
+    pub latitude: f64,
+    pub longitude: f64,
+    pub altitude: f64,
 }
 
-impl From<Value> for GeoPoint {
-    fn from(msgpack: Value) -> Self {
-        match msgpack {
-            Value::Nil => todo!(),
-            Value::Boolean(_) => todo!(),
-            Value::Integer(_) => todo!(),
-            Value::F32(_) => todo!(),
-            Value::F64(_) => todo!(),
-            Value::String(_) => todo!(),
-            Value::Binary(_) => todo!(),
-            Value::Array(_) => todo!(),
-            Value::Map(_) => todo!(),
-            Value::Ext(_, _) => todo!(),
-        }
+impl From<Response> for GeoPoint {
+    fn from(msgpack: Response) -> Self {
+        let mut points = vec![];
+
+        match msgpack.result {
+            Ok(res) => {
+                let payload: &Vec<(Value, Value)> = res.as_map().unwrap();
+                for (_, v) in payload {
+                    let p = v.as_f64().unwrap();
+                    points.push(p);
+                }
+            },
+            Err(_) => panic!("Could not decode result from GeoPoint msgpack"),
+        };
+
+        GeoPoint { latitude: points[0], longitude: points[1], altitude: points[2] }
     }
 }

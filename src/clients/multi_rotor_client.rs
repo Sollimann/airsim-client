@@ -2,7 +2,7 @@ use async_std::net::ToSocketAddrs;
 use rmp_rpc::Utf8String;
 use rmpv::Value;
 
-use crate::{error::NetworkResult, types::GeoPoint, NetworkError};
+use crate::{error::NetworkResult, NetworkError, types::GeoPoint};
 
 use super::airsim_client::AirsimClient;
 
@@ -97,22 +97,16 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
-    pub async fn get_home_geo_point(&self) -> NetworkResult<()> {
+    // to parse:
+    // map: [(String(Utf8String { s: Ok("latitude") }), F64(47.641468)), (String(Utf8String { s: Ok("longitude") }), F64(-122.140165)), (String(Utf8String { s: Ok("altitude") }), F32(122.0))]
+    pub async fn get_home_geo_point(&self) -> Result<GeoPoint, NetworkError> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
-        let geo: Result<(), NetworkError> = self
+        self
             .airsim_client
             .unary_rpc("getHomeGeoPoint".into(), Some(vec![Value::String(vehicle_name)]))
             .await
             .map_err(Into::into)
-            .map(|response| {
-                let res = response.result.unwrap();
-                let _map = res.as_map();
-                println!("map: {:?}", _map.unwrap());
-            });
-
-        println!("geo: {:?}", geo);
-
-        Ok(())
+            .map(|response| GeoPoint::from(response))
     }
 }
