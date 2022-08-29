@@ -97,8 +97,10 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
-    // to parse:
-    // map: [(String(Utf8String { s: Ok("latitude") }), F64(47.641468)), (String(Utf8String { s: Ok("longitude") }), F64(-122.140165)), (String(Utf8String { s: Ok("altitude") }), F32(122.0))]
+    /// Get the Home location of the vehicle
+    /// 
+    /// Args:
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
     pub async fn get_home_geo_point(&self) -> Result<GeoPoint, NetworkError> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
