@@ -9,8 +9,8 @@ pub enum DrivetrainType {
 impl DrivetrainType {
     pub fn to_msgpack(&self) -> Value {
         let val = match self {
-            DrivetrainType::MaxDegreeOfFreedom => 1_i64,
-            DrivetrainType::ForwardOnly => 2_i64,
+            DrivetrainType::MaxDegreeOfFreedom => 0_i64,
+            DrivetrainType::ForwardOnly => 1_i64,
         };
 
         Value::Integer(val.into())

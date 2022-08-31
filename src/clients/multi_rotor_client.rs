@@ -109,6 +109,19 @@ impl MultiRotorClient {
         self.airsim_client.get_home_geo_point(Some(self.vehicle_name)).await
     }
 
+    pub async fn hover_async(&self) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "hover".into(),
+                Some(vec![Value::String(vehicle_name)]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
     /// Send desired goal position to default PID vehicle controller
     ///
     /// Args:
@@ -126,15 +139,16 @@ impl MultiRotorClient {
         timeout_sec: f32,
         drivetrain: DrivetrainType,
         yaw_mode: YawMode,
-        lookahead: Option<i32>,
-        adaptive_lookahead: Option<i32>,
+        lookahead: Option<f32>,
+        adaptive_lookahead: Option<f32>,
     ) -> NetworkResult<bool> {
-        let lookahead = lookahead.unwrap_or(-1) as i64;
-        let adaptive_lookahead = adaptive_lookahead.unwrap_or(0) as i64;
+        let lookahead = lookahead.unwrap_or(-1.0);
+        let adaptive_lookahead = adaptive_lookahead.unwrap_or(1.0);
+        let vehicle_name: Utf8String = self.vehicle_name.into();
 
         self.airsim_client
             .unary_rpc(
-                "moveToPositionAsync".into(),
+                "moveToPosition".into(),
                 Some(vec![
                     rmp_rpc::Value::F32(position.x),
                     rmp_rpc::Value::F32(position.y),
@@ -143,8 +157,9 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(timeout_sec),
                     drivetrain.to_msgpack(),
                     yaw_mode.to_msgpack(),
-                    rmp_rpc::Value::Integer(lookahead.into()),
-                    rmp_rpc::Value::Integer(adaptive_lookahead.into()),
+                    rmp_rpc::Value::F32(lookahead.into()),
+                    rmp_rpc::Value::F32(adaptive_lookahead.into()),
+                    Value::String(vehicle_name)
                 ]),
             )
             .await

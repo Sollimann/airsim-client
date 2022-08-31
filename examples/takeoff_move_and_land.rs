@@ -40,17 +40,21 @@ async fn connect_drone() -> NetworkResult<()> {
     println!("geopoint: {:?}", x);
 
     log::info!("move to position");
-    client
-        .move_to_position_async(
-            Position::new(10.0, 10.0, 10.0),
-            5.0,
-            3e+38,
-            DrivetrainType::MaxDegreeOfFreedom,
-            YawMode::new(true, 0.0),
-            None,
-            None,
-        )
-        .await?;
+    let _t1 = client
+                    .move_to_position_async(
+                        Position::new(-10.0, 10.0, -30.0),
+                        5.0,
+                        1000.0,
+                        DrivetrainType::MaxDegreeOfFreedom,
+                        YawMode::new(true, 0.0),
+                        None,
+                        None,
+                    )
+                    .fuse().await?;
+    let _t2 = client.hover_async().fuse().await?;
+
+    pin_mut!(_t1, _t2);
+
 
     // reset drone
     // task::sleep(Duration::from_secs(1)).await;
