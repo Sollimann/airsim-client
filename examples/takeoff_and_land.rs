@@ -38,7 +38,7 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("get home geo point");
     let x = client.get_home_geo_point().await;
     println!("geopoint: {:?}", x);
-    
+
     // reset drone
     // task::sleep(Duration::from_secs(1)).await;
     // log::info!("reset drone");

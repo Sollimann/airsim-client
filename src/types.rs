@@ -1,5 +1,4 @@
-use rmp_rpc::{Value, message::Response};
-
+use rmp_rpc::{message::Response, Value};
 
 #[derive(Debug)]
 pub struct GeoPoint {
@@ -19,10 +18,14 @@ impl From<Response> for GeoPoint {
                     let p = v.as_f64().unwrap();
                     points.push(p);
                 }
-            },
+            }
             Err(_) => panic!("Could not decode result from GeoPoint msgpack"),
         };
 
-        GeoPoint { latitude: points[0], longitude: points[1], altitude: points[2] }
+        GeoPoint {
+            latitude: points[0],
+            longitude: points[1],
+            altitude: points[2],
+        }
     }
 }

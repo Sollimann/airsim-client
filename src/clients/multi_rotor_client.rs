@@ -2,7 +2,7 @@ use async_std::net::ToSocketAddrs;
 use rmp_rpc::Utf8String;
 use rmpv::Value;
 
-use crate::{error::NetworkResult, NetworkError, types::GeoPoint};
+use crate::{error::NetworkResult, types::GeoPoint, NetworkError};
 
 use super::airsim_client::AirsimClient;
 
@@ -98,17 +98,16 @@ impl MultiRotorClient {
     }
 
     /// Get the Home location of the vehicle
-    /// 
+    ///
     /// Args:
     ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
     pub async fn get_home_geo_point(&self) -> Result<GeoPoint, NetworkError> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
-        self
-            .airsim_client
+        self.airsim_client
             .unary_rpc("getHomeGeoPoint".into(), Some(vec![Value::String(vehicle_name)]))
             .await
             .map_err(Into::into)
-            .map(|response| GeoPoint::from(response))
+            .map(GeoPoint::from)
     }
 }
