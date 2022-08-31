@@ -2,8 +2,12 @@ pub use clients::airsim_client::AirsimClient;
 pub use clients::car_client::CarClient;
 pub use clients::multi_rotor_client::MultiRotorClient;
 pub use error::{DecodeError, NetworkError, NetworkResult};
-pub(crate) use msgpack::MsgPackClient;
+pub use types::drive_train::DrivetrainType;
+pub use types::geopoint::GeoPoint;
+pub use types::pose::Position;
+pub use types::yaw_mode::YawMode;
 
+pub(crate) use msgpack::MsgPackClient;
 mod clients;
 mod error;
 mod msgpack;

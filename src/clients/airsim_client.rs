@@ -6,7 +6,7 @@ use rmp_rpc::{
 use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use crate::{error::NetworkResult, MsgPackClient, NetworkError};
+use crate::{error::NetworkResult, types::geopoint::GeoPoint, MsgPackClient, NetworkError};
 
 pub struct AirsimClient {
     client: MsgPackClient,
@@ -122,62 +122,6 @@ impl AirsimClient {
         Ok(connected)
     }
 
-    /// Enables or disables API control for vehicle corresponding to vehicle_name
-    ///
-    /// args:
-    ///     is_enabled (bool): True to enable, False to disable API control
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
-    pub async fn enable_api_control(&self, is_enabled: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
-        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
-
-        self.unary_rpc(
-            "enableApiControl".into(),
-            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
-        )
-        .await
-        .map_err(Into::into)
-        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }
-
-    /// Returns true if API control is established.
-    ///
-    /// If false (which is default) then API calls would be ignored. After a successful call
-    /// to `enableApiControl`, `isApiControlEnabled` should return true.
-    ///
-    /// args:
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
-    pub async fn is_api_control_enabled(&self, is_enabled: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
-        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
-
-        self.unary_rpc(
-            "isApiControlEnabled".into(),
-            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
-        )
-        .await
-        .map_err(Into::into)
-        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }
-
-    /// Returns true if API control is established.
-    ///
-    /// If false (which is default) then API calls would be ignored. After a successful call
-    /// to `enableApiControl`, `isApiControlEnabled` should return true.
-    ///
-    /// args:
-    ///     arm (bool): True to arm, False to disarm the vehicle
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
-    pub async fn arm_disarm(&self, arm: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
-        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
-
-        self.unary_rpc(
-            "armDisarm".into(),
-            Some(vec![Value::Boolean(arm), Value::String(vehicle_name)]),
-        )
-        .await
-        .map_err(Into::into)
-        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }
-
     /// Pauses simulation
     ///
     /// args:
@@ -220,6 +164,79 @@ impl AirsimClient {
             .map_err::<NetworkError, _>(Into::into)?;
 
         Ok(())
+    }
+
+    /// Enables or disables API control for vehicle corresponding to vehicle_name
+    ///
+    /// args:
+    ///     is_enabled (bool): True to enable, False to disable API control
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub(crate) async fn enable_api_control(&self, is_enabled: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "enableApiControl".into(),
+            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Returns true if API control is established.
+    ///
+    /// If false (which is default) then API calls would be ignored. After a successful call
+    /// to `enableApiControl`, `isApiControlEnabled` should return true.
+    ///
+    /// args:
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub(crate) async fn is_api_control_enabled(
+        &self,
+        is_enabled: bool,
+        vehicle_name: Option<&str>,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "isApiControlEnabled".into(),
+            Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Returns true if API control is established.
+    ///
+    /// If false (which is default) then API calls would be ignored. After a successful call
+    /// to `enableApiControl`, `isApiControlEnabled` should return true.
+    ///
+    /// args:
+    ///     arm (bool): True to arm, False to disarm the vehicle
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub(crate) async fn arm_disarm(&self, arm: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc(
+            "armDisarm".into(),
+            Some(vec![Value::Boolean(arm), Value::String(vehicle_name)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Get the Home location of the vehicle
+    ///
+    /// Args:
+    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    pub(crate) async fn get_home_geo_point(&self, vehicle_name: Option<&str>) -> Result<GeoPoint, NetworkError> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc("getHomeGeoPoint".into(), Some(vec![Value::String(vehicle_name)]))
+            .await
+            .map_err(Into::into)
+            .map(GeoPoint::from)
     }
 
     #[allow(deprecated)]

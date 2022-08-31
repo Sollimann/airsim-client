@@ -2,9 +2,9 @@ use rmp_rpc::{message::Response, Value};
 
 #[derive(Debug)]
 pub struct GeoPoint {
-    pub latitude: f64,
-    pub longitude: f64,
-    pub altitude: f64,
+    pub latitude: f32,
+    pub longitude: f32,
+    pub altitude: f32,
 }
 
 impl From<Response> for GeoPoint {
@@ -23,9 +23,9 @@ impl From<Response> for GeoPoint {
         };
 
         GeoPoint {
-            latitude: points[0],
-            longitude: points[1],
-            altitude: points[2],
+            latitude: points[0] as f32,
+            longitude: points[1] as f32,
+            altitude: points[2] as f32,
         }
     }
 }

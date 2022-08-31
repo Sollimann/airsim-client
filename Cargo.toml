@@ -35,4 +35,4 @@ path = "examples/connect.rs"
 [[example]]
 crate-type = ["bin"]
 name = "takeoff_and_land"
-path = "examples/takeoff_and_land.rs"
+path = "examples/takeoff_move_and_land.rs"

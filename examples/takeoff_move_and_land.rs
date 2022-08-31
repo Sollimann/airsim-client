@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use airsim_client::{MultiRotorClient, NetworkResult};
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Position, YawMode};
 use async_std::task;
 
 use futures::{
@@ -38,6 +38,19 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("get home geo point");
     let x = client.get_home_geo_point().await;
     println!("geopoint: {:?}", x);
+
+    log::info!("move to position");
+    client
+        .move_to_position_async(
+            Position::new(10.0, 10.0, 10.0),
+            5.0,
+            3e+38,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(true, 0.0),
+            None,
+            None,
+        )
+        .await?;
 
     // reset drone
     // task::sleep(Duration::from_secs(1)).await;

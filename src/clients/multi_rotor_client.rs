@@ -2,7 +2,11 @@ use async_std::net::ToSocketAddrs;
 use rmp_rpc::Utf8String;
 use rmpv::Value;
 
-use crate::{error::NetworkResult, types::GeoPoint, NetworkError};
+use crate::types::drive_train::DrivetrainType;
+use crate::types::geopoint::GeoPoint;
+use crate::types::pose::Position;
+use crate::types::yaw_mode::YawMode;
+use crate::{error::NetworkResult, NetworkError};
 
 use super::airsim_client::AirsimClient;
 
@@ -102,12 +106,53 @@ impl MultiRotorClient {
     /// Args:
     ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
     pub async fn get_home_geo_point(&self) -> Result<GeoPoint, NetworkError> {
-        let vehicle_name: Utf8String = self.vehicle_name.into();
+        self.airsim_client.get_home_geo_point(Some(self.vehicle_name)).await
+    }
+
+    /// Send desired goal position to default PID vehicle controller
+    ///
+    /// Args:
+    ///     position (Position): goal position of the vehicle controller
+    ///     velocity (f32): desired velocity in NED frame of the vehicle
+    ///     timeout_sec (32): Timeout for the vehicle to reach desired goal position
+    ///     drivetrain (DrivetrainType): when ForwardOnly, vehicle rotates itself so that its front is always facing the direction of travel. If MaxDegreeOfFreedom then it doesn't do that (crab-like movement)
+    ///     yaw_mode (YawMode): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+    ///     lookahead (Option<i32>): defaults to `-1`
+    ///     adaptive_lookahead (Option<i32>): defaults to `0`
+    pub async fn move_to_position_async(
+        &self,
+        position: Position,
+        velocity: f32,
+        timeout_sec: f32,
+        drivetrain: DrivetrainType,
+        yaw_mode: YawMode,
+        lookahead: Option<i32>,
+        adaptive_lookahead: Option<i32>,
+    ) -> NetworkResult<bool> {
+        let lookahead = lookahead.unwrap_or(-1) as i64;
+        let adaptive_lookahead = adaptive_lookahead.unwrap_or(0) as i64;
 
         self.airsim_client
-            .unary_rpc("getHomeGeoPoint".into(), Some(vec![Value::String(vehicle_name)]))
+            .unary_rpc(
+                "moveToPositionAsync".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(position.x),
+                    rmp_rpc::Value::F32(position.y),
+                    rmp_rpc::Value::F32(position.z),
+                    rmp_rpc::Value::F32(velocity),
+                    rmp_rpc::Value::F32(timeout_sec),
+                    drivetrain.to_msgpack(),
+                    yaw_mode.to_msgpack(),
+                    rmp_rpc::Value::Integer(lookahead.into()),
+                    rmp_rpc::Value::Integer(adaptive_lookahead.into()),
+                ]),
+            )
             .await
             .map_err(Into::into)
-            .map(GeoPoint::from)
+            .map(|response| {
+                let x = response.result;
+                println!("res: {:?}", x);
+                x.is_ok()
+            })
     }
 }
