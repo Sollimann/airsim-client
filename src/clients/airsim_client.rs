@@ -24,6 +24,14 @@ impl AirsimClient {
         Ok(airsim)
     }
 
+    #[allow(deprecated)]
+    fn new_request_id(&self) -> u32 {
+        self.last_request_id
+            // TODO: method below is deprecated
+            .compare_and_swap(u32::max_value(), 0, Ordering::AcqRel);
+        self.last_request_id.fetch_add(1, Ordering::AcqRel)
+    }
+
     pub(crate) async fn unary_rpc(&self, method: String, params: Option<Vec<Value>>) -> NetworkResult<Response> {
         self.client
             .request(Request {
@@ -166,6 +174,55 @@ impl AirsimClient {
         Ok(())
     }
 
+    /// Change intensity of named light
+    ///
+    /// args:
+    ///     light_name (str): Name of light to change
+    ///     intensity (f32): New intensity value
+    pub async fn sim_set_light_intensity(&self, _light_name: &str, _intensity: f32) -> bool {
+        unimplemented!("todo")
+    }
+
+    /// Runtime swap texture API
+    /// Returns vector of objects which matched the provided tags and had the texture swap perfomed
+    /// See https://microsoft.github.io/AirSim/retexturing/ for details
+    ///
+    /// args:
+    ///     tags (str): String of "," or ", " delimited tags to identify on which actors to perform the swap
+    ///     tex_id (Option<i32>): Indexes the array of textures assigned to each actor undergoing a swap
+    ///     component_id (Option<i32>): Id of the component
+    ///     material_id (Option<i32>): Id of the material
+    pub async fn sim_swap_textures(
+        &self,
+        _tags: &str,
+        _tex_id: Option<i32>,
+        _component_id: Option<i32>,
+        _material_id: Option<i32>,
+    ) -> NetworkResult<Vec<String>> {
+        unimplemented!("todo")
+    }
+
+    /// Runtime swap texture API
+    /// Returns True if material was set
+    /// See https://microsoft.github.io/AirSim/retexturing/ for details
+    ///
+    /// args:
+    ///     object_name (&str): Name of the object to set material for
+    ///     material_name (&str): Name of the material to set for object
+    ///     component_id (Option<i32>): id of the component
+    pub async fn sim_set_object_material(
+        &self,
+        _tags: &str,
+        _tex_id: Option<i32>,
+        _component_id: Option<i32>,
+        _material_id: Option<i32>,
+    ) -> NetworkResult<Vec<String>> {
+        unimplemented!("todo")
+    }
+}
+
+/// Vehicle specific functions
+impl AirsimClient {
     /// Enables or disables API control for vehicle corresponding to vehicle_name
     ///
     /// args:
@@ -237,13 +294,5 @@ impl AirsimClient {
             .await
             .map_err(Into::into)
             .map(GeoPoint::from)
-    }
-
-    #[allow(deprecated)]
-    fn new_request_id(&self) -> u32 {
-        self.last_request_id
-            // TODO: method below is deprecated
-            .compare_and_swap(u32::max_value(), 0, Ordering::AcqRel);
-        self.last_request_id.fetch_add(1, Ordering::AcqRel)
     }
 }
