@@ -113,10 +113,7 @@ impl MultiRotorClient {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
         self.airsim_client
-            .unary_rpc(
-                "hover".into(),
-                Some(vec![Value::String(vehicle_name)]),
-            )
+            .unary_rpc("hover".into(), Some(vec![Value::String(vehicle_name)]))
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok())
@@ -132,6 +129,7 @@ impl MultiRotorClient {
     ///     yaw_mode (YawMode): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
     ///     lookahead (Option<i32>): defaults to `-1`
     ///     adaptive_lookahead (Option<i32>): defaults to `0`
+    #[allow(clippy::too_many_arguments)]
     pub async fn move_to_position_async(
         &self,
         position: Position,
@@ -157,9 +155,9 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(timeout_sec),
                     drivetrain.to_msgpack(),
                     yaw_mode.to_msgpack(),
-                    rmp_rpc::Value::F32(lookahead.into()),
-                    rmp_rpc::Value::F32(adaptive_lookahead.into()),
-                    Value::String(vehicle_name)
+                    rmp_rpc::Value::F32(lookahead),
+                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    Value::String(vehicle_name),
                 ]),
             )
             .await
