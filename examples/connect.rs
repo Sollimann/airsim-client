@@ -20,7 +20,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // arm drone
     log::info!("arm drone");
-    client.arm_disarm(true, Some(vehicle_name)).await?;
+    client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
     // reset drone
@@ -31,7 +31,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // disarm drone
     log::info!("disarm drone");
-    client.arm_disarm(false, Some(vehicle_name)).await?;
+    client.arm_disarm(false).await?;
     log::info!("Response: {:?}", res);
 
     log::info!("Done!");

@@ -1,12 +1,11 @@
 use std::time::Duration;
 
-use airsim_client::{MultiRotorClient, NetworkResult};
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Position, YawMode};
 use async_std::task;
 
 use futures::{
     future::FutureExt, // for `.fuse()`
     pin_mut,
-    select,
 };
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -26,16 +25,36 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // arm drone
     log::info!("arm drone");
-    client.arm_disarm(true, Some(vehicle_name)).await?;
+    client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
     // take off
     log::info!("take off drone");
-    let t1 = client.take_off_async(20, Some(vehicle_name)).fuse().await?;
-    let t2 = task::sleep(Duration::from_secs(30)).fuse();
+    let _t1 = client.take_off_async(20).fuse().await?;
+    let _t2 = task::sleep(Duration::from_secs(10)).fuse();
 
-    pin_mut!(t1, t2);
-    log::info!("Response: {:?}", res);
+    pin_mut!(_t1, _t2);
+
+    log::info!("get home geo point");
+    let x = client.get_home_geo_point().await;
+    println!("geopoint: {:?}", x);
+
+    log::info!("move to position");
+    let _t1 = client
+        .move_to_position_async(
+            Position::new(-10.0, 10.0, -30.0),
+            5.0,
+            1000.0,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(true, 0.0),
+            None,
+            None,
+        )
+        .fuse()
+        .await?;
+    let _t2 = client.hover_async().fuse().await?;
+
+    pin_mut!(_t1, _t2);
 
     // reset drone
     // task::sleep(Duration::from_secs(1)).await;

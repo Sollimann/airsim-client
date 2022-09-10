@@ -12,6 +12,7 @@ repos:
       - id: check-executables-have-shebangs
       - id: check-json
       - id: pretty-format-json
+        exclude: "^(docker/)"
         args:
           - "--autofix"
           - "--indent=4"
@@ -27,6 +28,7 @@ repos:
       - id: destroyed-symlinks
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: "^(docker/)"
       - id: file-contents-sorter
       - id: fix-byte-order-marker
       - id: fix-encoding-pragma

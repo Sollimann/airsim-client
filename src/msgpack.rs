@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use async_std::channel::{bounded, Receiver, Sender};
 use async_std::io::prelude::*;
 use async_std::net::{TcpStream, ToSocketAddrs};
@@ -139,7 +140,7 @@ impl MsgPackClient {
         }
 
         // return result from request which is forwarded from the background thread above
-        response_receiver.recv().await.map_err(|e| NetworkError::Recv(e))
+        response_receiver.recv().await.map_err(NetworkError::Recv)
     }
 
     pub async fn _notify(&self, notification: Notification) -> Result<(), NetworkError> {
