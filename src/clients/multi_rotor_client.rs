@@ -86,29 +86,64 @@ impl MultiRotorClient {
     /// Takeoff vehicle to 3m above ground. Vehicle should not be moving when this API is used
     ///
     /// Args:
-    ///     timeout_sec (Option<u64>): Timeout for the vehicle to reach desired altitude
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
-    pub async fn take_off_async(&self, timeout_sec: u64) -> NetworkResult<bool> {
+    ///     timeout_sec (Option<f32>): Timeout for the vehicle to reach desired altitude
+    pub async fn take_off_async(&self, timeout_sec: f32) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
         self.airsim_client
             .unary_rpc(
                 "takeoff".into(),
-                Some(vec![Value::Integer(timeout_sec.into()), Value::String(vehicle_name)]),
+                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
             )
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
-    /// Get the Home location of the vehicle
+    /// Safely land the vehicle in a vertical only movement.
+    /// This function should close to the ground
     ///
     /// Args:
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    ///     timeout_sec (Option<f32>): Timeout for the vehicle to land
+    pub async fn land_async(&self, timeout_sec: f32) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "land".into(),
+                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }   
+
+    /// Return vehicle to Home i.e. Launch location
+    /// The vehicle should be in the viscinity of home when this function
+    /// is called
+    ///
+    /// Args:
+    ///     timeout_sec (Option<f32>): Timeout for the vehicle to reach desired altitude    
+    pub async fn go_home_async(&self, timeout_sec: f32) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "goHome".into(),
+                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }  
+
+    /// Get the Home location of the vehicle
     pub async fn get_home_geo_point(&self) -> Result<GeoPoint, NetworkError> {
         self.airsim_client.get_home_geo_point(Some(self.vehicle_name)).await
     }
 
+
+    /// Hover the vehicle in place
     pub async fn hover_async(&self) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
@@ -126,7 +161,7 @@ impl MultiRotorClient {
     ///     velocity (f32): desired velocity in NED frame of the vehicle
     ///     timeout_sec (32): Timeout for the vehicle to reach desired goal position
     ///     drivetrain (DrivetrainType): when ForwardOnly, vehicle rotates itself so that its front is always facing the direction of travel. If MaxDegreeOfFreedom then it doesn't do that (crab-like movement)
-    ///     yaw_mode (YawMode): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+    ///     yaw_mode (YawMode, Degree): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
     ///     lookahead (Option<i32>): defaults to `-1`
     ///     adaptive_lookahead (Option<i32>): defaults to `0`
     #[allow(clippy::too_many_arguments)]
@@ -162,10 +197,6 @@ impl MultiRotorClient {
             )
             .await
             .map_err(Into::into)
-            .map(|response| {
-                let x = response.result;
-                println!("res: {:?}", x);
-                x.is_ok()
-            })
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 }

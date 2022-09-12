@@ -4,7 +4,7 @@ use airsim_client::{MultiRotorClient, NetworkResult};
 use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "127.0.0.1:41451";
+    let address = "172.21.112.1:41451";
     let vehicle_name = "";
 
     log::info!("Start!");
@@ -23,15 +23,15 @@ async fn connect_drone() -> NetworkResult<()> {
     client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
+    // disarm drone
+    log::info!("disarm drone");
+    client.arm_disarm(false).await?;
+    log::info!("Response: {:?}", res);
+
     // reset drone
     task::sleep(Duration::from_secs(1)).await;
     log::info!("reset drone");
     let res = client.reset().await?;
-    log::info!("Response: {:?}", res);
-
-    // disarm drone
-    log::info!("disarm drone");
-    client.arm_disarm(false).await?;
     log::info!("Response: {:?}", res);
 
     log::info!("Done!");

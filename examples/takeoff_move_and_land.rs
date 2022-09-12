@@ -30,7 +30,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // take off
     log::info!("take off drone");
-    let _t1 = client.take_off_async(20).fuse().await?;
+    let _t1 = client.take_off_async(20.0).fuse().await?;
     let _t2 = task::sleep(Duration::from_secs(10)).fuse();
 
     pin_mut!(_t1, _t2);
@@ -40,34 +40,57 @@ async fn connect_drone() -> NetworkResult<()> {
     println!("geopoint: {:?}", x);
 
     log::info!("move to position");
-    let _t1 = client
+    client
         .move_to_position_async(
             Position::new(-10.0, 10.0, -30.0),
-            5.0,
+            3.0,
             1000.0,
-            DrivetrainType::MaxDegreeOfFreedom,
-            YawMode::new(true, 0.0),
+            DrivetrainType::ForwardOnly,
+            YawMode::new(false, 90.0),
             None,
             None,
         )
         .fuse()
         .await?;
-    let _t2 = client.hover_async().fuse().await?;
 
-    pin_mut!(_t1, _t2);
+    client
+    .move_to_position_async(
+        Position::new(-30.0, 10.0, -6.0),
+        4.0,
+        1000.0,
+        DrivetrainType::ForwardOnly,
+        YawMode::new(false, 180.0),
+        None,
+        None,
+    )
+    .fuse()
+    .await?;
 
-    // reset drone
-    // task::sleep(Duration::from_secs(1)).await;
-    // log::info!("reset drone");
-    // let res = client.reset().await?;
-    // log::info!("Response: {:?}", res);
 
-    // // disarm drone
-    // log::info!("disarm drone");
-    // client.arm_disarm(false, Some(vehicle_name)).await?;
-    // log::info!("Response: {:?}", res);
+    client
+    .move_to_position_async(
+        Position::new(-1.0, 1.0, -4.0),
+        4.0,
+        1000.0,
+        DrivetrainType::ForwardOnly,
+        YawMode::new(false, 270.0),
+        None,
+        None,
+    )
+    .fuse()
+    .await?;
 
-    log::info!("Done!");
+    log::info!("go home");
+    client.go_home_async(20.0).await?;
+    log::info!("got home");
+
+    log::info!("land drone");
+    let landed = client.land_async(20.0).await?;
+    log::info!("drone landed: {}", landed);
+
+    client.arm_disarm(false).await?;
+    client.enable_api_control(false).await?;
+    log::info!("Mission done!");
     Ok(())
 }
 

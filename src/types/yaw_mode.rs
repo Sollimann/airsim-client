@@ -20,7 +20,6 @@ impl YawMode {
         ]);
         let msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
         let req = Value::Map(msg);
-        println!("req: {:?}", req);
         req
     }
 }
