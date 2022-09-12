@@ -9,7 +9,7 @@ use futures::{
 };
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "127.0.0.1:41451";
+    let address = "172.21.112.1:41451"; // set with env variable
     let vehicle_name = "";
 
     log::info!("Start!");
