@@ -1,12 +1,5 @@
-use std::time::Duration;
-
-use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Position3, YawMode};
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Velocity3, YawMode, Velocity2, Vector3, Path};
 use async_std::task;
-
-use futures::{
-    future::FutureExt, // for `.fuse()`
-    pin_mut,
-};
 
 async fn connect_drone() -> NetworkResult<()> {
     let address = "172.21.112.1:41451"; // set with env variable
@@ -30,53 +23,23 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // take off
     log::info!("take off drone");
-    let _t1 = client.take_off_async(20.0).fuse().await?;
-    let _t2 = task::sleep(Duration::from_secs(10)).fuse();
+    client.take_off_async(20.0).await?;
+    log::info!("take off completed");
 
-    pin_mut!(_t1, _t2);
-
-    log::info!("get home geo point");
-    let x = client.get_home_geo_point().await;
-    println!("geopoint: {:?}", x);
-
-    log::info!("move to position");
+    log::info!("move on path");
     client
-        .move_to_position_async(
-            Position3::new(-10.0, 10.0, -30.0),
-            3.0,
+        .move_on_path(
+            Path(vec![Vector3::new(-25.0, 0.0, -20.0), Vector3::new(-50.0, 50.0, -20.0), Vector3::new(-50.0, -50.0, -25.0)]),
+            5.0,
             1000.0,
-            DrivetrainType::ForwardOnly,
+            DrivetrainType::MaxDegreeOfFreedom,
             YawMode::new(false, 90.0),
             None,
             None,
         )
         .await?;
-
-    client
-    .move_to_position_async(
-        Position3::new(-30.0, 10.0, -6.0),
-        4.0,
-        1000.0,
-        DrivetrainType::ForwardOnly,
-        YawMode::new(false, 180.0),
-        None,
-        None,
-    )
-    .await?;
-
-
-    client
-    .move_to_position_async(
-        Position3::new(-1.0, 1.0, -4.0),
-        4.0,
-        1000.0,
-        DrivetrainType::ForwardOnly,
-        YawMode::new(false, 270.0),
-        None,
-        None,
-    )
-    .await?;
-
+    log::info!("done!");
+    
     log::info!("go home");
     client.go_home_async(20.0).await?;
     log::info!("got home");

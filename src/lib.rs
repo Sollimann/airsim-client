@@ -4,7 +4,9 @@ pub use clients::multi_rotor_client::MultiRotorClient;
 pub use error::{DecodeError, NetworkError, NetworkResult};
 pub use types::drive_train::DrivetrainType;
 pub use types::geopoint::GeoPoint;
-pub use types::pose::Position;
+pub use types::pose::{Position3, Velocity3, Velocity2};
+pub use types::vector::Vector3;
+pub use types::path::Path;
 pub use types::yaw_mode::YawMode;
 
 pub(crate) use msgpack::MsgPackClient;

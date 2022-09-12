@@ -36,3 +36,13 @@ path = "examples/connect.rs"
 crate-type = ["bin"]
 name = "takeoff_and_land"
 path = "examples/takeoff_move_and_land.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "move_by"
+path = "examples/move_by.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "move_on_path"
+path = "examples/move_on_path.rs"
