@@ -188,7 +188,7 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
-    /// Set 2D velocity vector in vehicle's local NED frame, with desired Z attitude.
+    /// Set 2D velocity vector in vehicle's local NED frame, with desired Z altitude.
     ///
     /// Args:
     ///     velocity (Velocity2): desired velocity in the X,Y axis's of the vehicle's local NED frame.
@@ -351,7 +351,7 @@ impl MultiRotorClient {
     ///     lookahead (Option<i32>): defaults to `-1`
     ///     adaptive_lookahead (Option<i32>): defaults to `0`
     #[allow(clippy::too_many_arguments)]
-    pub async fn move_on_path(
+    pub async fn move_on_path_async(
         &self,
         path: Path,
         velocity: f32,
@@ -383,4 +383,50 @@ impl MultiRotorClient {
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
+
+    /// Send desired goal position to default PID vehicle controller
+    ///
+    /// Args:
+    ///     position (Position3): goal position of the vehicle controller
+    ///     velocity (f32): desired velocity in NED frame of the vehicle
+    ///     timeout_sec (32): Timeout for the vehicle to reach desired goal position
+    ///     drivetrain (DrivetrainType): when ForwardOnly, vehicle rotates itself so that its front is always facing the direction of travel. If MaxDegreeOfFreedom then it doesn't do that (crab-like movement)
+    ///     yaw_mode (YawMode, Degree): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+    ///     lookahead (Option<i32>): defaults to `-1`
+    ///     adaptive_lookahead (Option<i32>): defaults to `0`
+    #[allow(clippy::too_many_arguments)]
+    pub async fn move_to_gps_async(
+        &self,
+        geopoint: GeoPoint,
+        velocity: f32,
+        timeout_sec: f32,
+        drivetrain: DrivetrainType,
+        yaw_mode: YawMode,
+        lookahead: Option<f32>,
+        adaptive_lookahead: Option<f32>,
+    ) -> NetworkResult<bool> {
+        let lookahead = lookahead.unwrap_or(-1.0);
+        let adaptive_lookahead = adaptive_lookahead.unwrap_or(1.0);
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveToGPS".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(geopoint.latitude),
+                    rmp_rpc::Value::F32(geopoint.longitude),
+                    rmp_rpc::Value::F32(geopoint.altitude),
+                    rmp_rpc::Value::F32(velocity),
+                    rmp_rpc::Value::F32(timeout_sec),
+                    drivetrain.to_msgpack(),
+                    yaw_mode.to_msgpack(),
+                    rmp_rpc::Value::F32(lookahead),
+                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }    
 }

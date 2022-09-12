@@ -36,8 +36,8 @@ async fn connect_drone() -> NetworkResult<()> {
     pin_mut!(_t1, _t2);
 
     log::info!("get home geo point");
-    let x = client.get_home_geo_point().await;
-    println!("geopoint: {:?}", x);
+    let geopoint = client.get_home_geo_point().await.unwrap();
+    println!("geopoint: {:?}", geopoint);
 
     log::info!("move to position");
     client
@@ -54,8 +54,8 @@ async fn connect_drone() -> NetworkResult<()> {
 
     client
     .move_to_position_async(
-        Position3::new(-30.0, 10.0, -6.0),
-        4.0,
+        Position3::new(-30.0, 70.0, -25.0),
+        7.0,
         1000.0,
         DrivetrainType::ForwardOnly,
         YawMode::new(false, 180.0),
@@ -64,18 +64,19 @@ async fn connect_drone() -> NetworkResult<()> {
     )
     .await?;
 
-
+    log::info!("go to geopoint");
     client
-    .move_to_position_async(
-        Position3::new(-1.0, 1.0, -4.0),
-        4.0,
+    .move_to_gps_async(
+        geopoint,
+        6.0,
         1000.0,
         DrivetrainType::ForwardOnly,
-        YawMode::new(false, 270.0),
+        YawMode::new(false, 70.0),
         None,
         None,
     )
     .await?;
+    log::info!("finished going to geopoint");
 
     log::info!("go home");
     client.go_home_async(20.0).await?;

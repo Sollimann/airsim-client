@@ -28,7 +28,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("move on path");
     client
-        .move_on_path(
+        .move_on_path_async(
             Path(vec![Vector3::new(-25.0, 0.0, -20.0), Vector3::new(-50.0, 50.0, -20.0), Vector3::new(-50.0, -50.0, -25.0)]),
             5.0,
             1000.0,

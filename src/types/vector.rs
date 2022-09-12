@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Value, Utf8String};
+use rmp_rpc::{Value, Utf8String};
 
 #[derive(Clone, Debug)]
 pub struct Vector3 {
@@ -12,7 +12,7 @@ impl Vector3 {
         Vector3 { x, y, z }
     }
 
-    pub fn to_msgpack(&self) -> Value {
+    pub(crate) fn to_msgpack(&self) -> Value {
         let x_val: Utf8String = "x_val".into();
         let y_val: Utf8String = "y_val".into();
         let z_val: Utf8String = "z_val".into();
