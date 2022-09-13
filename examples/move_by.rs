@@ -29,7 +29,7 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("move by 3D velocity in body frame");
     client
         .move_by_velocity_body_frame_async(
-            Velocity3::new(-5.0, 5.0, -10.0),
+            Velocity3::new(-2.0, 2.0, -15.0),
             10.0,
             DrivetrainType::MaxDegreeOfFreedom,
             YawMode::new(false, 45.0),
@@ -69,6 +69,12 @@ async fn connect_drone() -> NetworkResult<()> {
             DrivetrainType::MaxDegreeOfFreedom,
             YawMode::new(false, 45.0),
         )
+        .await?;
+    log::info!("done!");
+
+    log::info!("move to Z in local NED frame of vehicle");
+    client
+        .move_to_z_async(-40.0, 6.0, 1000.0, YawMode::new(false, 70.0), None, None)
         .await?;
     log::info!("done!");
 

@@ -429,4 +429,86 @@ impl MultiRotorClient {
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
+
+    /// Move to a desired altitude Z (in local NED frame of the vehicle) with a desired velocity
+    ///
+    /// Args:
+    ///     z (f32): desired Z value (in local NED frame of the vehicle)
+    ///     velocity (f32): desired velocity in NED frame of the vehicle
+    ///     timeout_sec (32): Timeout for the vehicle to reach desired goal altitude Z
+    ///     yaw_mode (YawMode, Degree): Specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+    ///     lookahead (Option<i32>): defaults to `-1`
+    ///     adaptive_lookahead (Option<i32>): defaults to `0`
+    #[allow(clippy::too_many_arguments)]
+    pub async fn move_to_z_async(
+        &self,
+        z: f32,
+        velocity: f32,
+        timeout_sec: f32,
+        yaw_mode: YawMode,
+        lookahead: Option<f32>,
+        adaptive_lookahead: Option<f32>,
+    ) -> NetworkResult<bool> {
+        let lookahead = lookahead.unwrap_or(-1.0);
+        let adaptive_lookahead = adaptive_lookahead.unwrap_or(1.0);
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveToZ".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(z),
+                    rmp_rpc::Value::F32(velocity),
+                    rmp_rpc::Value::F32(timeout_sec),
+                    yaw_mode.to_msgpack(),
+                    rmp_rpc::Value::F32(lookahead),
+                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Set the vehicle in a manual mode state.
+    /// Parameters sets up the constraints on velocity and minimum altitude while flying.
+    /// If RC state is detected to violate these constraintsthen that RC state would be ignored.
+    ///
+    /// Call this method followed by `move_by_rc` method to remote control the vehicle
+    ///
+    /// Args:
+    ///     v_max (Velocity3): max velocity allowed in X, Y, Z direction
+    ///     z_min (f32): min Z (altitude) allowed for vehicle position
+    ///     duration (f32): after this duration vehicle would switch back to non-manual mode
+    ///     drivetrain (DrivetrainType): when ForwardOnly, vehicle rotates itself so that its front is always facing the direction of travel. If MaxDegreeOfFreedom then it doesn't do that (crab-like movement)
+    ///     yaw_mode (YawMode, Degree): specifies if vehicle should face at given angle (is_rate=False) or should be rotating around its axis at given rate (is_rate=True)
+    pub async fn move_by_manual_async(
+        &self,
+        v_max: Velocity3,
+        z_min: f32,
+        duration: f32,
+        drivetrain: DrivetrainType,
+        yaw_mode: YawMode,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByManual".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(v_max.vx),
+                    rmp_rpc::Value::F32(v_max.vy),
+                    rmp_rpc::Value::F32(v_max.vz),
+                    rmp_rpc::Value::F32(z_min),
+                    rmp_rpc::Value::F32(duration),
+                    drivetrain.to_msgpack(),
+                    yaw_mode.to_msgpack(),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
 }

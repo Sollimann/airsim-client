@@ -46,3 +46,8 @@ path = "examples/move_by.rs"
 crate-type = ["bin"]
 name = "move_on_path"
 path = "examples/move_on_path.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "manual_mode"
+path = "examples/manual_mode.rs"
