@@ -11,7 +11,6 @@ impl Position3 {
     }
 }
 
-
 #[derive(Clone, Debug)]
 pub struct Velocity3 {
     pub vx: f32,
@@ -24,7 +23,6 @@ impl Velocity3 {
         Velocity3 { vx, vy, vz }
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub struct Velocity2 {

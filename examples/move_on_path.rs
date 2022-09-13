@@ -1,4 +1,4 @@
-use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Velocity3, YawMode, Velocity2, Vector3, Path};
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Path, Vector3, YawMode};
 use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -29,7 +29,11 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("move on path");
     client
         .move_on_path_async(
-            Path(vec![Vector3::new(-25.0, 0.0, -20.0), Vector3::new(-50.0, 50.0, -20.0), Vector3::new(-50.0, -50.0, -25.0)]),
+            Path(vec![
+                Vector3::new(-25.0, 0.0, -20.0),
+                Vector3::new(-50.0, 50.0, -20.0),
+                Vector3::new(-50.0, -50.0, -25.0),
+            ]),
             5.0,
             1000.0,
             DrivetrainType::MaxDegreeOfFreedom,
@@ -39,7 +43,7 @@ async fn connect_drone() -> NetworkResult<()> {
         )
         .await?;
     log::info!("done!");
-    
+
     log::info!("go home");
     client.go_home_async(20.0).await?;
     log::info!("got home");

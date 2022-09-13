@@ -1,4 +1,4 @@
-use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Velocity3, YawMode, Velocity2};
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Velocity2, Velocity3, YawMode};
 use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -28,50 +28,50 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("move by 3D velocity in body frame");
     client
-    .move_by_velocity_body_frame_async(
-        Velocity3::new(-5.0, 5.0, -10.0),
-        10.0,
-        DrivetrainType::MaxDegreeOfFreedom,
-        YawMode::new(false, 45.0),
-    )
-    .await?;
+        .move_by_velocity_body_frame_async(
+            Velocity3::new(-5.0, 5.0, -10.0),
+            10.0,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(false, 45.0),
+        )
+        .await?;
     log::info!("done!");
 
     log::info!("move by 2D velocity body frame with fixed Z");
     client
-    .move_by_velocity_z_body_frame_async(
-        Velocity2::new(-3.0, -3.0),
-    -15.0,
-        15.0,
-        DrivetrainType::MaxDegreeOfFreedom,
-        YawMode::new(false, 45.0),
-    )
-    .await?;
+        .move_by_velocity_z_body_frame_async(
+            Velocity2::new(-3.0, -3.0),
+            -15.0,
+            15.0,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(false, 45.0),
+        )
+        .await?;
     log::info!("done!");
 
     log::info!("move by 3D velocity in world NED frame");
     client
-    .move_by_velocity_async(
-        Velocity3::new(-3.0, -3.0, -3.0),
-    6.0,
-        DrivetrainType::MaxDegreeOfFreedom,
-        YawMode::new(false, -45.0),
-    )
-    .await?;
+        .move_by_velocity_async(
+            Velocity3::new(-3.0, -3.0, -3.0),
+            6.0,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(false, -45.0),
+        )
+        .await?;
     log::info!("done!");
 
     log::info!("move by 2D velocity world NED frame with fixed Z");
     client
-    .move_by_velocity_z_async(
-        Velocity2::new(-3.0, -3.0),
-    -10.0,
-        15.0,
-        DrivetrainType::MaxDegreeOfFreedom,
-        YawMode::new(false, 45.0),
-    )
-    .await?;
+        .move_by_velocity_z_async(
+            Velocity2::new(-3.0, -3.0),
+            -10.0,
+            15.0,
+            DrivetrainType::MaxDegreeOfFreedom,
+            YawMode::new(false, 45.0),
+        )
+        .await?;
     log::info!("done!");
-    
+
     log::info!("go home");
     client.go_home_async(20.0).await?;
     log::info!("got home");

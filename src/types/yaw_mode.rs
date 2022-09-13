@@ -19,7 +19,6 @@ impl YawMode {
             (Value::String(yaw_or_rate_str), Value::F32(self.yaw_or_rate)),
         ]);
         let msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
-        let req = Value::Map(msg);
-        req
+        Value::Map(msg)
     }
 }

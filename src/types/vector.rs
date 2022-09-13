@@ -1,4 +1,4 @@
-use rmp_rpc::{Value, Utf8String};
+use rmp_rpc::{Utf8String, Value};
 
 #[derive(Clone, Debug)]
 pub struct Vector3 {
@@ -20,11 +20,10 @@ impl Vector3 {
         let val = Value::Map(vec![
             (Value::String(x_val), Value::F32(self.x)),
             (Value::String(y_val), Value::F32(self.y)),
-            (Value::String(z_val), Value::F32(self.z))
+            (Value::String(z_val), Value::F32(self.z)),
         ]);
-        
+
         let msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
-        let req = Value::Map(msg);
-        req
+        Value::Map(msg)
     }
 }

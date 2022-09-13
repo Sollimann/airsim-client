@@ -53,29 +53,29 @@ async fn connect_drone() -> NetworkResult<()> {
         .await?;
 
     client
-    .move_to_position_async(
-        Position3::new(-30.0, 70.0, -25.0),
-        7.0,
-        1000.0,
-        DrivetrainType::ForwardOnly,
-        YawMode::new(false, 180.0),
-        None,
-        None,
-    )
-    .await?;
+        .move_to_position_async(
+            Position3::new(-30.0, 70.0, -25.0),
+            7.0,
+            1000.0,
+            DrivetrainType::ForwardOnly,
+            YawMode::new(false, 180.0),
+            None,
+            None,
+        )
+        .await?;
 
     log::info!("go to geopoint");
     client
-    .move_to_gps_async(
-        geopoint,
-        6.0,
-        1000.0,
-        DrivetrainType::ForwardOnly,
-        YawMode::new(false, 70.0),
-        None,
-        None,
-    )
-    .await?;
+        .move_to_gps_async(
+            geopoint,
+            6.0,
+            1000.0,
+            DrivetrainType::ForwardOnly,
+            YawMode::new(false, 70.0),
+            None,
+            None,
+        )
+        .await?;
     log::info!("finished going to geopoint");
 
     log::info!("go home");

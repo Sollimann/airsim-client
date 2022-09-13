@@ -2,12 +2,12 @@ use async_std::net::ToSocketAddrs;
 use rmp_rpc::Utf8String;
 use rmpv::Value;
 
-use crate::{Velocity2, Path};
 use crate::types::drive_train::DrivetrainType;
 use crate::types::geopoint::GeoPoint;
 use crate::types::pose::{Position3, Velocity3};
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
+use crate::{Path, Velocity2};
 
 use super::airsim_client::AirsimClient;
 
@@ -110,7 +110,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "takeoff".into(),
-                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
+                Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
             .map_err(Into::into)
@@ -128,31 +128,31 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "land".into(),
-                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
+                Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }   
+    }
 
     /// Return vehicle to Home i.e. Launch location
     /// The vehicle should be in the viscinity of home when this function
     /// is called
     ///
     /// Args:
-    ///     timeout_sec (Option<f32>): Timeout for the vehicle to reach desired altitude    
+    ///     timeout_sec (Option<f32>): Timeout for the vehicle to reach desired altitude
     pub async fn go_home_async(&self, timeout_sec: f32) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
         self.airsim_client
             .unary_rpc(
                 "goHome".into(),
-                Some(vec![Value::F32(timeout_sec.into()), Value::String(vehicle_name)]),
+                Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }  
+    }
 
     /// Set 3D velocity vector in vehicle's local NED frame
     ///
@@ -428,5 +428,5 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }    
+    }
 }
