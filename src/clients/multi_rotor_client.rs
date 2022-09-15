@@ -5,6 +5,7 @@ use rmpv::Value;
 use crate::types::drive_train::DrivetrainType;
 use crate::types::geopoint::GeoPoint;
 use crate::types::pose::{Position3, Velocity3};
+use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
 use crate::{Path, Velocity2};
@@ -499,7 +500,6 @@ impl MultiRotorClient {
                 Some(vec![
                     rmp_rpc::Value::F32(v_max.vx),
                     rmp_rpc::Value::F32(v_max.vy),
-                    rmp_rpc::Value::F32(v_max.vz),
                     rmp_rpc::Value::F32(z_min),
                     rmp_rpc::Value::F32(duration),
                     drivetrain.to_msgpack(),
@@ -510,5 +510,26 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// TODO
+    pub async fn move_by_rc(&self, rc_data: RCData) -> NetworkResult<()> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByRC".into(),
+                Some(vec![rc_data.to_msgpack(), Value::String(vehicle_name)]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.unwrap())
+            .map(|value| {
+                if value.is_nil() {
+                    ()
+                } else {
+                    panic!("Value {} is not Nil", value)
+                }
+            })
     }
 }

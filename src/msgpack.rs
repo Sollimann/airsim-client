@@ -14,6 +14,7 @@ use crate::error::NetworkResult;
 use crate::NetworkError;
 
 /// msgpack client used to interface with the airsim msgpack server
+#[derive(Clone, Debug)]
 pub struct MsgPackClient {
     request_sender: Sender<Request>,
     notification_sender: Sender<Notification>,

@@ -5,7 +5,8 @@ pub use error::{DecodeError, NetworkError, NetworkResult};
 pub use types::drive_train::DrivetrainType;
 pub use types::geopoint::GeoPoint;
 pub use types::path::Path;
-pub use types::pose::{Position3, Velocity2, Velocity3};
+pub use types::pose::{Orientation3, Position3, Velocity2, Velocity3};
+pub use types::rc_data::RCData;
 pub use types::vector::Vector3;
 pub use types::yaw_mode::YawMode;
 
