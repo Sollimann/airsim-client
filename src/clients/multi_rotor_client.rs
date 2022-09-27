@@ -5,6 +5,7 @@ use rmpv::Value;
 use crate::types::drive_train::DrivetrainType;
 use crate::types::geopoint::GeoPoint;
 use crate::types::pose::{Position3, Velocity3};
+use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
@@ -512,7 +513,10 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
-    /// TODO
+    /// Remote control the robot in joystick mode
+    ///
+    /// args:
+    ///     rc_data (RCData): remote control commands
     pub async fn move_by_rc(&self, rc_data: RCData) -> NetworkResult<()> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
@@ -531,5 +535,32 @@ impl MultiRotorClient {
                     panic!("Value {} is not Nil", value)
                 }
             })
+    }
+
+    /// Low level control API
+    ///
+    /// Directly control the motors using PWM values
+    /// convert thrust to pwm: https://github.com/microsoft/AirSim/issues/2592
+    /// args:
+    ///     pwm (PWM): pwm signals for each indivual rotor (4 rotors in total)
+    ///     duration (f32): desired amount of time (seconds), to send this command for
+    pub async fn move_by_motor_pwm_async(&self, pwm: PWM, duration: f32) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByMotorPWMs".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(pwm.front_right_pwm),
+                    rmp_rpc::Value::F32(pwm.rear_left_pwm),
+                    rmp_rpc::Value::F32(pwm.front_left_pwm),
+                    rmp_rpc::Value::F32(pwm.rear_right_pwm),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 }

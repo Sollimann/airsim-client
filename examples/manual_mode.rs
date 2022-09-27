@@ -3,7 +3,7 @@ use std::{sync::Arc, thread, time::Duration};
 // use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "172.21.112.1:41451"; // set with env variable
+    let address = "172.17.176.1:41451"; // set with env variable
     let vehicle_name = "";
 
     log::info!("Start!");
