@@ -24,6 +24,28 @@ async fn connect_drone() -> NetworkResult<()> {
     client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
+    // OPTIONAL - set gains
+    // log::info!("set angle rate controller PID gains");
+    // let pid_gains = PIDGains::new(2.5, 0.0, 0.0);
+    // let res = client
+    //     .set_angle_rate_controller_gains(AngularControllerGains::new(
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //     ))
+    //     .await?;
+    // log::info!("Response: {:?}", res);
+
+    // log::info!("set angle level controller PID gains");
+    // let res = client
+    //     .set_angle_level_controller_gains(AngularControllerGains::new(
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //     ))
+    //     .await?;
+    // log::info!("Response: {:?}", res);
+
     log::info!("turn 180 and go to 3m");
     client_clone
         .move_by_roll_pitch_yaw_z_async(Orientation3::new(0.0, 0.0, 1.57), -3.0, 3.0)
