@@ -1,4 +1,4 @@
-use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Orientation3, RCData, Velocity3, YawMode};
+use airsim_client::{MultiRotorClient, NetworkResult, Orientation2, Orientation3};
 use std::{sync::Arc, thread, time::Duration};
 // use async_std::task;
 
@@ -31,14 +31,20 @@ async fn connect_drone() -> NetworkResult<()> {
         .unwrap();
     log::info!("done!");
 
-    log::info!("turn 180 and go to 3m");
+    log::info!("turn negative -180 with throttle");
     client_clone
-        .move_by_roll_pitch_yaw_z_async(Orientation3::new(1.2, 0.0, 1.57), -8.0, 3.0)
+        .move_by_roll_pitch_yaw_throttle_async(Orientation3::new(0.0, 0.0, -1.57), 0.7, 3.0)
         .await
         .unwrap();
     log::info!("done!");
 
-    thread::sleep(Duration::from_secs(2));
+    log::info!("turn with yawrate and Z throttle");
+    let s = client_clone
+        .move_by_roll_pitch_yawrate_throttle_async(Orientation2::new(0.0, 0.0), 6.0, 0.45, 2.0)
+        .await
+        .unwrap();
+    log::info!("done! {s:?}");
+
     log::info!("land drone");
     let landed = client.land_async(20.0).await.unwrap();
     log::info!("drone landed: {}", landed);
@@ -52,7 +58,6 @@ async fn connect_drone() -> NetworkResult<()> {
 #[tokio::main]
 async fn main() -> NetworkResult<()> {
     env_logger::init();
-    // task::block_on(connect_drone())
     connect_drone().await.unwrap();
     Ok(())
 }

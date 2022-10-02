@@ -13,17 +13,31 @@ impl Position3 {
 
 #[derive(Clone, Debug)]
 pub struct Orientation3 {
-    /// in radians
+    /// roll angle, in radians
     pub roll: f32,
-    /// in radians
+    /// pitch angle, in radians
     pub pitch: f32,
-    /// in radians
+    /// yaw angle, in radians
     pub yaw: f32,
 }
 
 impl Orientation3 {
     pub fn new(roll: f32, pitch: f32, yaw: f32) -> Self {
         Orientation3 { roll, pitch, yaw }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Orientation2 {
+    /// roll angle, in radians
+    pub roll: f32,
+    /// pitch angle, in radians
+    pub pitch: f32,
+}
+
+impl Orientation2 {
+    pub fn new(roll: f32, pitch: f32) -> Self {
+        Orientation2 { roll, pitch }
     }
 }
 

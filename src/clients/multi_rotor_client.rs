@@ -1,10 +1,12 @@
+use core::panic;
+
 use async_std::net::ToSocketAddrs;
 use rmp_rpc::Utf8String;
 use rmpv::Value;
 
 use crate::types::drive_train::DrivetrainType;
 use crate::types::geopoint::GeoPoint;
-use crate::types::pose::{Orientation3, Position3, Velocity3};
+use crate::types::pose::{Orientation2, Orientation3, Position3, Velocity3};
 use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
@@ -567,13 +569,12 @@ impl MultiRotorClient {
 
     /// Low level control API
     ///
-    /// Directly control the motors using PWM values
-    /// convert thrust to pwm: https://github.com/microsoft/AirSim/issues/2592
+    /// Set an desired (absolute, not relative) attitude and altitude
     ///
     /// args:
-    ///     rotation (Orientation3): Roll angle, pitch angle, and yaw angle set points are given in **radians**, in the ENU body frame.
+    ///     rotation (Orientation3): Roll angle, pitch angle, and yaw angle set points are given in `radians`, in the ENU body frame.
     ///     z (f32): altitude z is given in local NED frame of the vehicle.
-    ///     duration (f32): desired amount of time (seconds), to send this command for
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
     pub async fn move_by_roll_pitch_yaw_z_async(
         &self,
         rotation: Orientation3,
@@ -590,6 +591,81 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(-rotation.pitch),
                     rmp_rpc::Value::F32(-rotation.yaw),
                     rmp_rpc::Value::F32(z),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Set an desired (absolute, not relative) attitude and throttle in z-direction
+    ///
+    /// args:
+    ///     rotation (Orientation3): Roll angle, pitch angle, and yaw angle set points are given in `radians`, in the ENU body frame.
+    ///     throttle_z (f32): Desired throttle (between 0.0 to 1.0) in Z
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
+    pub async fn move_by_roll_pitch_yaw_throttle_async(
+        &self,
+        rotation: Orientation3,
+        throttle_z: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        if throttle_z.is_sign_negative() || throttle_z > 1.0 {
+            panic!("throttle_z outside of valid range 0.0 to 1.0")
+        }
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByRollPitchYawThrottle".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation.roll),
+                    rmp_rpc::Value::F32(-rotation.pitch),
+                    rmp_rpc::Value::F32(-rotation.yaw),
+                    rmp_rpc::Value::F32(throttle_z),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Set an desired (absolute, not relative) attitude and throttle in z-direction
+    ///
+    /// args:
+    ///     rotation (Orientation2): Desired roll and pitch angle set points are given in `radians`, in the ENU body frame.
+    ///     yaw_rate (f32): Desired yaw rate, in radian per second.
+    ///     throttle_z (f32): Desired throttle (between 0.0 to 1.0) in Z
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
+    pub async fn move_by_roll_pitch_yawrate_throttle_async(
+        &self,
+        rotation: Orientation2,
+        yaw_rate: f32,
+        throttle_z: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+        if throttle_z.is_sign_negative() || throttle_z > 1.0 {
+            panic!("throttle_z outside of valid range 0.0 to 1.0")
+        }
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByRollPitchYawrateThrottle".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation.roll),
+                    rmp_rpc::Value::F32(-rotation.pitch),
+                    rmp_rpc::Value::F32(-yaw_rate),
+                    rmp_rpc::Value::F32(throttle_z),
                     rmp_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
