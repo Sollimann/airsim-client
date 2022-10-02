@@ -63,3 +63,8 @@ path = "examples/manual_mode.rs"
 crate-type = ["bin"]
 name = "motor_pwm"
 path = "examples/move_by_pwm.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "move_by_rpy"
+path = "examples/move_by_rpy.rs"

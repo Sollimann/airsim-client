@@ -1,5 +1,5 @@
-use airsim_client::{MultiRotorClient, NetworkResult, PWM};
-use std::sync::Arc;
+use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Orientation3, RCData, Velocity3, YawMode};
+use std::{sync::Arc, thread, time::Duration};
 // use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -12,6 +12,7 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("connect");
     let _client = MultiRotorClient::connect(address, vehicle_name).await?;
     let client = Arc::new(_client);
+    let client_clone = client.clone();
 
     // confirm connect
     log::info!("confirm connection");
@@ -23,18 +24,21 @@ async fn connect_drone() -> NetworkResult<()> {
     client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
-    log::info!("move by manual pwm");
-    client
-        .move_by_motor_pwms_async(PWM::new(0.6, 0.6, 0.6, 0.6), 6.0)
-        .await?;
-    log::info!("done with pwm");
+    log::info!("turn 180 and go to 3m");
+    client_clone
+        .move_by_roll_pitch_yaw_z_async(Orientation3::new(0.0, 0.0, 1.57), -3.0, 3.0)
+        .await
+        .unwrap();
+    log::info!("done!");
 
-    log::info!("move by pwm again");
-    client
-        .move_by_motor_pwms_async(PWM::new(0.6, 0.605, 0.6, 0.605), 1.0)
-        .await?;
-    log::info!("done with pwm");
+    log::info!("turn 180 and go to 3m");
+    client_clone
+        .move_by_roll_pitch_yaw_z_async(Orientation3::new(1.2, 0.0, 1.57), -8.0, 3.0)
+        .await
+        .unwrap();
+    log::info!("done!");
 
+    thread::sleep(Duration::from_secs(2));
     log::info!("land drone");
     let landed = client.land_async(20.0).await.unwrap();
     log::info!("drone landed: {}", landed);

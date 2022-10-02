@@ -4,7 +4,7 @@ use rmpv::Value;
 
 use crate::types::drive_train::DrivetrainType;
 use crate::types::geopoint::GeoPoint;
-use crate::types::pose::{Position3, Velocity3};
+use crate::types::pose::{Orientation3, Position3, Velocity3};
 use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
@@ -541,10 +541,11 @@ impl MultiRotorClient {
     ///
     /// Directly control the motors using PWM values
     /// convert thrust to pwm: https://github.com/microsoft/AirSim/issues/2592
+    ///
     /// args:
     ///     pwm (PWM): pwm signals for each indivual rotor (4 rotors in total)
     ///     duration (f32): desired amount of time (seconds), to send this command for
-    pub async fn move_by_motor_pwm_async(&self, pwm: PWM, duration: f32) -> NetworkResult<bool> {
+    pub async fn move_by_motor_pwms_async(&self, pwm: PWM, duration: f32) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
 
         self.airsim_client
@@ -555,6 +556,40 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(pwm.rear_left_pwm),
                     rmp_rpc::Value::F32(pwm.front_left_pwm),
                     rmp_rpc::Value::F32(pwm.rear_right_pwm),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Directly control the motors using PWM values
+    /// convert thrust to pwm: https://github.com/microsoft/AirSim/issues/2592
+    ///
+    /// args:
+    ///     rotation (Orientation3): Roll angle, pitch angle, and yaw angle set points are given in **radians**, in the ENU body frame.
+    ///     z (f32): altitude z is given in local NED frame of the vehicle.
+    ///     duration (f32): desired amount of time (seconds), to send this command for
+    pub async fn move_by_roll_pitch_yaw_z_async(
+        &self,
+        rotation: Orientation3,
+        z: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByRollPitchYawZ".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation.roll),
+                    rmp_rpc::Value::F32(-rotation.pitch),
+                    rmp_rpc::Value::F32(-rotation.yaw),
+                    rmp_rpc::Value::F32(z),
                     rmp_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),

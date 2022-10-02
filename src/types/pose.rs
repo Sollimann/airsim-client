@@ -13,8 +13,11 @@ impl Position3 {
 
 #[derive(Clone, Debug)]
 pub struct Orientation3 {
+    /// in radians
     pub roll: f32,
+    /// in radians
     pub pitch: f32,
+    /// in radians
     pub yaw: f32,
 }
 
