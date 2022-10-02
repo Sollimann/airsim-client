@@ -638,6 +638,58 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Set PID gains for the angle rate controller
+    ///
+    /// - Modifying these gains will have an affect on *ALL* move*() APIs.
+    ///     This is because any velocity setpoint is converted to an angle level setpoint which is tracked with an angle level controllers.
+    ///     That angle level setpoint is itself tracked with and angle rate controller.
+    /// - This function should only be called if the default angle rate control PID gains need to be modified.
+    ///
+    /// args:
+    ///     angle_rate_gains (AngularControllerGains):
+    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
+    ///         - Pass AngularControllerGains() to reset gains to default recommended values.
+    pub async fn set_angle_rate_controller_gains(
+        &self,
+        angle_rate_gains: AngularControllerGains,
+    ) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setAngleRateControllerGains".into(),
+                Some(angle_rate_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
+    /// Set PID gains for the angle level controller
+    ///
+    /// - Sets angle level controller gains (used by any API setting angle references - for ex: move_by_roll_pitch_yaw_z_async(),
+    ///   move_by_roll_pitch_yaw_throttle_async(), etc)
+    /// - Modifying these gains will also affect the behaviour of move_by_velocity_async() API.
+    ///     This is because the AirSim flight controller will track velocity setpoints by converting them to angle set points.
+    /// - This function should only be called if the default angle level control PID gains need to be modified.
+    /// - Passing AngularControllerGains() sets gains to default airsim values.
+    ///
+    /// args:
+    ///     angle_level_gains (AngularControllerGains):
+    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
+    ///         - Pass AngleLevelControllerGains() to reset gains to default recommended values.
+    pub async fn set_angle_level_controller_gains(
+        &self,
+        angle_level_gains: AngularControllerGains,
+    ) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setAngleLevelControllerGains".into(),
+                Some(angle_level_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
     /// Low level control API
     ///
     /// Set an desired (absolute, not relative) attitude and altitude
@@ -850,56 +902,5 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
-    }
-
-    /// Set PID gains for the angle rate controller
-    ///
-    /// - Modifying these gains will have an affect on *ALL* move*() APIs.
-    ///     This is because any velocity setpoint is converted to an angle level setpoint which is tracked with an angle level controllers.
-    ///     That angle level setpoint is itself tracked with and angle rate controller.
-    /// - This function should only be called if the default angle rate control PID gains need to be modified.
-    ///
-    /// args:
-    ///     angle_rate_gains (AngularControllerGains):
-    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
-    ///         - Pass AngularControllerGains() to reset gains to default recommended values.
-    pub async fn set_angle_rate_controller_gains(
-        &self,
-        angle_rate_gains: AngularControllerGains,
-    ) -> NetworkResult<bool> {
-        self.airsim_client
-            .unary_rpc(
-                "setAngleRateControllerGains".into(),
-                Some(angle_rate_gains.to_msgpack(self.vehicle_name)),
-            )
-            .await
-            .map_err(Into::into)
-            .map(|response| response.result.is_ok())
-    }
-
-    /// Set PID gains for the angle level controller
-    ///
-    /// - Sets angle level controller gains (used by any API setting angle references - for ex: moveByRollPitchYawZAsync(), moveByRollPitchYawThrottleAsync(), etc)
-    /// - Modifying these gains will also affect the behaviour of moveByVelocityAsync() API.
-    ///     This is because the AirSim flight controller will track velocity setpoints by converting them to angle set points.
-    /// - This function should only be called if the default angle level control PID gains need to be modified.
-    /// - Passing AngleLevelControllerGains() sets gains to default airsim values.
-    ///
-    /// args:
-    ///     angle_level_gains (AngleLevelControllerGains):
-    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
-    ///         - Pass AngleLevelControllerGains() to reset gains to default recommended values.
-    pub async fn set_angle_level_controller_gains(
-        &self,
-        angle_level_gains: AngularControllerGains,
-    ) -> NetworkResult<bool> {
-        self.airsim_client
-            .unary_rpc(
-                "setAngleLevelControllerGains".into(),
-                Some(angle_level_gains.to_msgpack(self.vehicle_name)),
-            )
-            .await
-            .map_err(Into::into)
-            .map(|response| response.result.is_ok())
     }
 }
