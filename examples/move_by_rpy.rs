@@ -1,5 +1,5 @@
 use airsim_client::{MultiRotorClient, NetworkResult, Orientation2, Orientation3};
-use std::{sync::Arc, thread, time::Duration};
+use std::sync::Arc;
 // use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
@@ -41,6 +41,27 @@ async fn connect_drone() -> NetworkResult<()> {
     log::info!("turn with yawrate and Z throttle");
     let s = client_clone
         .move_by_roll_pitch_yawrate_throttle_async(Orientation2::new(0.0, 0.0), 6.0, 0.45, 2.0)
+        .await
+        .unwrap();
+    log::info!("done! {s:?}");
+
+    log::info!("turn with yawrate and altitude");
+    let s = client_clone
+        .move_by_roll_pitch_yawrate_z_async(Orientation2::new(0.0, 0.0), 1.0, -10.0, 4.0)
+        .await
+        .unwrap();
+    log::info!("done! {s:?}");
+
+    log::info!("move by angle rates and throttle");
+    let s = client_clone
+        .move_by_angle_rates_throttle_async(Orientation3::new(0.2, 0.0, 0.0), 0.65, 3.0)
+        .await
+        .unwrap();
+    log::info!("done! {s:?}");
+
+    log::info!("move by angle rates");
+    let s = client_clone
+        .move_by_angle_rates_z_async(Orientation3::new(-0.4, 0.0, 0.0), -3.0, 3.0)
         .await
         .unwrap();
     log::info!("done! {s:?}");

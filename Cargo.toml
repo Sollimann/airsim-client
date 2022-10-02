@@ -68,3 +68,8 @@ path = "examples/move_by_pwm.rs"
 crate-type = ["bin"]
 name = "move_by_rpy"
 path = "examples/move_by_rpy.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "set_gains"
+path = "examples/set_gains.rs"

@@ -5,13 +5,14 @@ use rmp_rpc::Utf8String;
 use rmpv::Value;
 
 use crate::types::drive_train::DrivetrainType;
+use crate::types::gains::AngularControllerGains;
 use crate::types::geopoint::GeoPoint;
 use crate::types::pose::{Orientation2, Orientation3, Position3, Velocity3};
 use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
-use crate::{Path, Velocity2};
+use crate::{LinearControllerGains, Path, Velocity2};
 
 use super::airsim_client::AirsimClient;
 
@@ -88,6 +89,8 @@ impl MultiRotorClient {
         self.airsim_client.arm_disarm(arm, Some(self.vehicle_name)).await
     }
 
+    /// High level control API
+    ///
     /// Hover the vehicle in place
     pub async fn hover_async(&self) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = self.vehicle_name.into();
@@ -104,6 +107,8 @@ impl MultiRotorClient {
         self.airsim_client.get_home_geo_point(Some(self.vehicle_name)).await
     }
 
+    /// High level control API
+    ///
     /// Takeoff vehicle to 3m above ground. Vehicle should not be moving when this API is used
     ///
     /// Args:
@@ -121,6 +126,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Safely land the vehicle in a vertical only movement.
     /// This function should close to the ground
     ///
@@ -139,6 +146,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Return vehicle to Home i.e. Launch location
     /// The vehicle should be in the viscinity of home when this function
     /// is called
@@ -158,6 +167,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Set 3D velocity vector in vehicle's local NED frame
     ///
     /// Args:
@@ -192,6 +203,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Set 2D velocity vector in vehicle's local NED frame, with desired Z altitude.
     ///
     /// Args:
@@ -228,6 +241,31 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Set PID gains for the velocity controller, move_by_velocity_async().
+    ///
+    /// - Sets velocity controller gains for moveByVelocityAsync().
+    /// - This function should only be called if the default velocity control PID gains need to be modified.
+    /// - Passing VelocityControllerGains() sets gains to default airsim values.
+    ///
+    /// args:
+    ///     velocity_gains (LinearControllerGains):
+    ///         - Correspond to the world X, Y, Z axes.
+    ///         - Pass LinearControllerGains() to reset gains to default recommended values.
+    ///         - Modifying velocity controller gains will have an affect on the behaviour of move_on_spline_async() and
+    ///           move_on_spline_vel_constraints_async(), as they both use velocity control to track the trajectory.
+    pub async fn set_velocity_controller_gains(&self, velocity_gains: LinearControllerGains) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setVelocityControllerGains".into(),
+                Some(velocity_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
+    /// High level control API
+    ///
     /// Set 3D velocity vector in vehicle's local NED frame
     ///
     /// Args:
@@ -262,6 +300,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Set 2D velocity vector in vehicle's local NED frame, with desired Z attitude.
     ///
     /// Args:
@@ -298,6 +338,27 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Set PID gains for the position controller, move_to_position_async()
+    ///
+    /// This function should only be called if the default position control PID gains need to be modified.
+    ///
+    /// args:
+    ///     position_gains (LinearControllerGains):
+    ///         - Correspond to the X, Y, Z axes.
+    ///         - Pass PositionControllerGains() to reset gains to default recommended values.
+    pub async fn set_position_controller_gains(&self, position_gains: LinearControllerGains) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setPositionControllerGains".into(),
+                Some(position_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
+    /// High level control API
+    ///
     /// Send desired goal position to default PID vehicle controller
     ///
     /// Args:
@@ -344,6 +405,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Send desired goal position to default PID vehicle controller
     ///
     /// Args:
@@ -388,6 +451,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Send desired goal position to default PID vehicle controller
     ///
     /// Args:
@@ -434,6 +499,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// High level control API
+    ///
     /// Move to a desired altitude Z (in local NED frame of the vehicle) with a desired velocity
     ///
     /// Args:
@@ -475,6 +542,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Low level control API
+    ///
     /// Set the vehicle in a manual mode state.
     /// Parameters sets up the constraints on velocity and minimum altitude while flying.
     /// If RC state is detected to violate these constraintsthen that RC state would be ignored.
@@ -515,6 +584,8 @@ impl MultiRotorClient {
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Low level control API
+    ///
     /// Remote control the robot in joystick mode
     ///
     /// args:
@@ -639,7 +710,7 @@ impl MultiRotorClient {
 
     /// Low level control API
     ///
-    /// Set an desired (absolute, not relative) attitude and throttle in z-direction
+    /// Set an desired (absolute, not relative) attitude, yaw rate and throttle in z-direction
     ///
     /// args:
     ///     rotation (Orientation2): Desired roll and pitch angle set points are given in `radians`, in the ENU body frame.
@@ -673,5 +744,162 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Set an desired (absolute, not relative) attitude, yaw rate and altitude Z (absolute, not relative)
+    ///
+    /// args:
+    ///     rotation (Orientation2): Desired roll and pitch angle set points are given in `radians`, in the ENU body frame.
+    ///     yaw_rate (f32): Desired yaw rate, in radian per second.
+    ///     z (f32): altitude z is given in local NED frame of the vehicle.
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
+    pub async fn move_by_roll_pitch_yawrate_z_async(
+        &self,
+        rotation: Orientation2,
+        yaw_rate: f32,
+        z: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByRollPitchYawrateZ".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation.roll),
+                    rmp_rpc::Value::F32(-rotation.pitch),
+                    rmp_rpc::Value::F32(-yaw_rate),
+                    rmp_rpc::Value::F32(z),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Set an desired (absolute, not relative) attitude, yaw rate and altitude Z (absolute, not relative)
+    ///
+    /// args:
+    ///     rotation_rates (Orientation2): Roll rate, pitch rate, and yaw rate set points are given in `radians`, in the body frame.
+    ///     yaw_rate (f32): Desired yaw rate, in radian per second.
+    ///     z (f32): altitude z is given in local NED frame of the vehicle.
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
+    pub async fn move_by_angle_rates_z_async(
+        &self,
+        rotation_rates: Orientation3,
+        z: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByAngleRatesZ".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation_rates.roll),
+                    rmp_rpc::Value::F32(-rotation_rates.pitch),
+                    rmp_rpc::Value::F32(-rotation_rates.yaw),
+                    rmp_rpc::Value::F32(z),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Low level control API
+    ///
+    /// Set an desired (absolute, not relative) attitude, yaw rate and altitude Z (absolute, not relative)
+    ///
+    /// args:
+    ///     rotation_rates (Orientation2): Roll rate, pitch rate, and yaw rate set points are given in `radians`, in the body frame.
+    ///     yaw_rate (f32): Desired yaw rate, in radian per second.
+    ///     throttle (f32): Desired throttle (between 0.0 to 1.0)
+    ///     duration (f32): Desired amount of time (seconds), to send this command for
+    pub async fn move_by_angle_rates_throttle_async(
+        &self,
+        rotation_rates: Orientation3,
+        throttle: f32,
+        duration: f32,
+    ) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+        if throttle.is_sign_negative() || throttle > 1.0 {
+            panic!("throttle outside of valid range 0.0 to 1.0")
+        }
+
+        self.airsim_client
+            .unary_rpc(
+                "moveByAngleRatesThrottle".into(),
+                Some(vec![
+                    rmp_rpc::Value::F32(rotation_rates.roll),
+                    rmp_rpc::Value::F32(-rotation_rates.pitch),
+                    rmp_rpc::Value::F32(-rotation_rates.yaw),
+                    rmp_rpc::Value::F32(throttle),
+                    rmp_rpc::Value::F32(duration),
+                    Value::String(vehicle_name),
+                ]),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Set PID gains for the angle rate controller
+    ///
+    /// - Modifying these gains will have an affect on *ALL* move*() APIs.
+    ///     This is because any velocity setpoint is converted to an angle level setpoint which is tracked with an angle level controllers.
+    ///     That angle level setpoint is itself tracked with and angle rate controller.
+    /// - This function should only be called if the default angle rate control PID gains need to be modified.
+    ///
+    /// args:
+    ///     angle_rate_gains (AngularControllerGains):
+    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
+    ///         - Pass AngularControllerGains() to reset gains to default recommended values.
+    pub async fn set_angle_rate_controller_gains(
+        &self,
+        angle_rate_gains: AngularControllerGains,
+    ) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setAngleRateControllerGains".into(),
+                Some(angle_rate_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
+    }
+
+    /// Set PID gains for the angle level controller
+    ///
+    /// - Sets angle level controller gains (used by any API setting angle references - for ex: moveByRollPitchYawZAsync(), moveByRollPitchYawThrottleAsync(), etc)
+    /// - Modifying these gains will also affect the behaviour of moveByVelocityAsync() API.
+    ///     This is because the AirSim flight controller will track velocity setpoints by converting them to angle set points.
+    /// - This function should only be called if the default angle level control PID gains need to be modified.
+    /// - Passing AngleLevelControllerGains() sets gains to default airsim values.
+    ///
+    /// args:
+    ///     angle_level_gains (AngleLevelControllerGains):
+    ///         - Correspond to the roll, pitch, yaw axes, defined in the body frame.
+    ///         - Pass AngleLevelControllerGains() to reset gains to default recommended values.
+    pub async fn set_angle_level_controller_gains(
+        &self,
+        angle_level_gains: AngularControllerGains,
+    ) -> NetworkResult<bool> {
+        self.airsim_client
+            .unary_rpc(
+                "setAngleLevelControllerGains".into(),
+                Some(angle_level_gains.to_msgpack(self.vehicle_name)),
+            )
+            .await
+            .map_err(Into::into)
+            .map(|response| response.result.is_ok())
     }
 }

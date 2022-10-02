@@ -39,6 +39,18 @@ async fn connect_drone() -> NetworkResult<()> {
     let geopoint = client.get_home_geo_point().await.unwrap();
     println!("geopoint: {:?}", geopoint);
 
+    // OPTIONAL - set gains
+    // log::info!("set position controller PID gains");
+    // let pid_gains = PIDGains::new(2.5, 0.0, 0.0);
+    // let res = client
+    //     .set_position_controller_gains(LinearControllerGains::new(
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //     ))
+    //     .await?;
+    // log::info!("Response: {:?}", res);
+
     log::info!("move to position");
     client
         .move_to_position_async(

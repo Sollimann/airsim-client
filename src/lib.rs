@@ -3,6 +3,7 @@ pub use clients::car_client::CarClient;
 pub use clients::multi_rotor_client::MultiRotorClient;
 pub use error::{DecodeError, NetworkError, NetworkResult};
 pub use types::drive_train::DrivetrainType;
+pub use types::gains::{AngularControllerGains, LinearControllerGains, PIDGains};
 pub use types::geopoint::GeoPoint;
 pub use types::path::Path;
 pub use types::pose::{Orientation2, Orientation3, Position3, Velocity2, Velocity3};

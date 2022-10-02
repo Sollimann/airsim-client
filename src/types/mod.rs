@@ -1,4 +1,5 @@
 pub mod drive_train;
+pub mod gains;
 pub mod geopoint;
 pub mod path;
 pub mod pose;

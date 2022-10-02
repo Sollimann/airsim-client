@@ -49,6 +49,17 @@ async fn connect_drone() -> NetworkResult<()> {
         .await?;
     log::info!("done!");
 
+    // Optional
+    // log::info!("set velocity controller PID gains");
+    // let pid_gains = PIDGains::new(2.5, 0.0, 0.0);
+    // let res = client
+    //     .set_velocity_controller_gains(LinearControllerGains::new(
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //         pid_gains.to_owned(),
+    //     ))
+    //     .await?;
+    // log::info!("Response: {:?}", res);
     log::info!("move by 3D velocity in world NED frame");
     client
         .move_by_velocity_async(
