@@ -602,9 +602,7 @@ impl MultiRotorClient {
             .map_err(Into::into)
             .map(|response| response.result.unwrap())
             .map(|value| {
-                if value.is_nil() {
-                    ()
-                } else {
+                if !value.is_nil() {
                     panic!("Value {} is not Nil", value)
                 }
             })

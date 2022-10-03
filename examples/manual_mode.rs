@@ -3,7 +3,7 @@ use std::{sync::Arc, thread, time::Duration};
 // use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "172.17.176.1:41451"; // set with env variable
+    let address = "172.21.176.1:41451"; // set with env variable
     let vehicle_name = "";
 
     log::info!("Start!");
@@ -24,16 +24,11 @@ async fn connect_drone() -> NetworkResult<()> {
     client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
-    //take off
-    // log::info!("take off drone");
-    // client.take_off_async(10.0).await?;
-    // log::info!("take off completed");
-
     tokio::spawn(async move {
         log::info!("set in manual mode");
         client_clone
             .move_by_manual_async(
-                Velocity3::new(200000.0, 200000.0, 200000.0),
+                Velocity3::new(1800000.0, 1800000.0, 1800000.0),
                 -10000.0,
                 15.0,
                 DrivetrainType::MaxDegreeOfFreedom,

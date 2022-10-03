@@ -1,0 +1,35 @@
+{
+    "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/main/docs/settings_json.md",
+    "SettingsVersion": 1.2,
+    "SimMode": "Multirotor",
+    "LocalHostIp": "0.0.0.0",
+    "ApiServerPort": 41451,
+    "ClockSpeed": 1.0,
+    "RecordUIVisible": true,
+    "LogMessagesVisible": true,
+    "ShowLosDebugLines": false,
+    "ViewMode": "",
+    "RpcEnabled": true,
+    "EngineSound": true,
+    "PhysicsEngineName": "",
+    "SpeedUnitFactor": 1.0,
+    "SpeedUnitLabel": "m/s",
+    "Wind": {
+        "X": 0,
+        "Y": 0,
+        "Z": 0
+    },
+    "Vehicles": {
+        "SimpleFlight": {
+            "VehicleType": "SimpleFlight",
+            "DefaultVehicleState": "Disarmed",
+            "EnableCollisionPassthrogh": false,
+            "EnableCollisions": true,
+            "AllowAPIAlways": true,
+            "RC": {
+                "RemoteControlID": -1,
+                "AllowAPIWhenDisconnected": false
+            }
+        }
+    }
+}
