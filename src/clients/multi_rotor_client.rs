@@ -7,6 +7,7 @@ use rmpv::Value;
 use crate::types::drive_train::DrivetrainType;
 use crate::types::gains::AngularControllerGains;
 use crate::types::geopoint::GeoPoint;
+use crate::types::multi_rotor_state::MultiRotorState;
 use crate::types::pose::{Orientation2, Orientation3, Position3, Velocity3};
 use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
@@ -900,5 +901,15 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Get the kinematic state of the multirotor vehicle
+    pub async fn get_multirotor_state(&self) -> NetworkResult<MultiRotorState> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+        self.airsim_client
+            .unary_rpc("getMultirotorState".into(), Some(vec![Value::String(vehicle_name)]))
+            .await
+            .map_err(Into::into)
+            .map(MultiRotorState::from)
     }
 }

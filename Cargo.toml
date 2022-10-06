@@ -73,3 +73,8 @@ path = "examples/move_by_rpy.rs"
 crate-type = ["bin"]
 name = "set_gains"
 path = "examples/set_gains.rs"
+
+[[example]]
+crate-type = ["bin"]
+name = "multirotor_state"
+path = "examples/state.rs"

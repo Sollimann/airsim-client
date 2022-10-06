@@ -1,6 +1,6 @@
 use rmp_rpc::{message::Response, Value};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GeoPoint {
     pub latitude: f32,
     pub longitude: f32,
@@ -25,7 +25,7 @@ impl From<Response> for GeoPoint {
             Ok(res) => {
                 let payload: &Vec<(Value, Value)> = res.as_map().unwrap();
                 for (_, v) in payload {
-                    let p = v.as_f64().unwrap();
+                    let p = v.as_f64().unwrap() as f32;
                     points.push(p);
                 }
             }
@@ -33,9 +33,26 @@ impl From<Response> for GeoPoint {
         };
 
         GeoPoint {
-            latitude: points[0] as f32,
-            longitude: points[1] as f32,
-            altitude: points[2] as f32,
+            latitude: points[0],
+            longitude: points[1],
+            altitude: points[2],
+        }
+    }
+}
+
+impl From<Value> for GeoPoint {
+    fn from(msgpack: Value) -> Self {
+        let mut points = vec![];
+        let payload: &Vec<(Value, Value)> = msgpack.as_map().unwrap();
+        for (_, v) in payload {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+
+        GeoPoint {
+            latitude: points[0],
+            longitude: points[1],
+            altitude: points[2],
         }
     }
 }

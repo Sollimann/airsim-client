@@ -1,6 +1,8 @@
+pub mod collision_info;
 pub mod drive_train;
 pub mod gains;
 pub mod geopoint;
+pub mod multi_rotor_state;
 pub mod path;
 pub mod pose;
 pub mod pwm;

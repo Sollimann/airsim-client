@@ -1,3 +1,7 @@
+use rmp_rpc::Value;
+
+use crate::Vector3;
+
 #[derive(Clone, Debug)]
 pub struct Position3 {
     pub x: f32,
@@ -63,5 +67,111 @@ pub struct Velocity2 {
 impl Velocity2 {
     pub fn new(vx: f32, vy: f32) -> Self {
         Velocity2 { vx, vy }
+    }
+}
+
+/// The kinematic state of the vehicle
+#[derive(Clone, Debug)]
+pub struct KinematicsState {
+    /// position in the frame of the vehicle's starting point
+    pub position: Position3,
+    /// orientation in the frame of the vehicle's starting point
+    pub orientation: Orientation3,
+    /// linear velocity in ENU body frame
+    pub linear_velocity: Vector3,
+    /// angular velocity in ENU body frame
+    pub angular_velocity: Vector3,
+    /// linear acceleration in ENU body frame
+    pub linear_acceleration: Vector3,
+    /// angular acceleration in ENU body frame
+    pub angular_acceleration: Vector3,
+}
+
+impl KinematicsState {
+    pub fn new(
+        position: Position3,
+        orientation: Orientation3,
+        linear_velocity: Vector3,
+        angular_velocity: Vector3,
+        linear_acceleration: Vector3,
+        angular_acceleration: Vector3,
+    ) -> Self {
+        KinematicsState {
+            position,
+            orientation,
+            linear_velocity,
+            angular_velocity,
+            linear_acceleration,
+            angular_acceleration,
+        }
+    }
+}
+
+impl From<Value> for KinematicsState {
+    fn from(msgpack: Value) -> Self {
+        let payload: &Vec<(Value, Value)> = msgpack.as_map().unwrap();
+
+        // position
+        let mut points = vec![];
+        let position_msgpack: &Vec<(Value, Value)> = payload[0].1.as_map().unwrap();
+        for (_, v) in position_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let position = Position3::new(points[0], points[1], points[2]);
+
+        // orientation
+        let mut points = vec![];
+        let orientation_msgpack: &Vec<(Value, Value)> = payload[1].1.as_map().unwrap();
+        for (_, v) in orientation_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let orientation = Orientation3::new(points[0], points[1], points[2]);
+
+        // linear velocity
+        let mut points = vec![];
+        let linear_velocity_msgpack: &Vec<(Value, Value)> = payload[2].1.as_map().unwrap();
+        for (_, v) in linear_velocity_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let linear_velocity = Vector3::new(points[0], points[1], points[2]);
+
+        // angular velocity
+        let mut points = vec![];
+        let angular_velocity_msgpack: &Vec<(Value, Value)> = payload[3].1.as_map().unwrap();
+        for (_, v) in angular_velocity_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let angular_velocity = Vector3::new(points[0], points[1], points[2]);
+
+        // linear acceleration
+        let mut points = vec![];
+        let linear_acceleration_msgpack: &Vec<(Value, Value)> = payload[4].1.as_map().unwrap();
+        for (_, v) in linear_acceleration_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let linear_acceleration = Vector3::new(points[0], points[1], points[2]);
+
+        // linear acceleration
+        let mut points = vec![];
+        let angular_acceleration_msgpack: &Vec<(Value, Value)> = payload[5].1.as_map().unwrap();
+        for (_, v) in angular_acceleration_msgpack {
+            let p = v.as_f64().unwrap() as f32;
+            points.push(p);
+        }
+        let angular_acceleration = Vector3::new(points[0], points[1], points[2]);
+
+        Self {
+            position,
+            orientation,
+            linear_velocity,
+            angular_velocity,
+            linear_acceleration,
+            angular_acceleration,
+        }
     }
 }
