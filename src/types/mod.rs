@@ -7,5 +7,6 @@ pub mod path;
 pub mod pose;
 pub mod pwm;
 pub mod rc_data;
+pub mod rotor_states;
 pub mod vector;
 pub mod yaw_mode;

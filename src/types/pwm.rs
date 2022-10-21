@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct PWM {
     /// PWM value for the front right motor (between 0.0 to 1.0)
     pub front_right_pwm: f32,

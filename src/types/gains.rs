@@ -1,6 +1,6 @@
 use rmp_rpc::Value;
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 /// Struct to store values of PID gains. Used to transmit controller gain values while instantiating
 pub struct PIDGains {
     /// Proportional gain
@@ -22,7 +22,7 @@ impl PIDGains {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 /// Struct to contain controller gains used by angle rate and level PID controller
 pub struct AngularControllerGains {
     /// kp, ki, kd for roll axis
@@ -42,7 +42,7 @@ impl AngularControllerGains {
         }
     }
 
-    pub(crate) fn to_msgpack(&self, vehicle_name: &'static str) -> Vec<Value> {
+    pub(crate) fn as_msgpack(&self, vehicle_name: &'static str) -> Vec<Value> {
         let kps = Value::Array(vec![
             Value::F32(self.roll_gains.kp),
             Value::F32(self.pitch_gains.kp),
@@ -65,7 +65,7 @@ impl AngularControllerGains {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 /// Struct to contain controller gains used by velocity and Position PID controller
 pub struct LinearControllerGains {
     /// kp, ki, kd for X axis
@@ -85,7 +85,7 @@ impl LinearControllerGains {
         }
     }
 
-    pub(crate) fn to_msgpack(&self, vehicle_name: &'static str) -> Vec<Value> {
+    pub(crate) fn as_msgpack(&self, vehicle_name: &'static str) -> Vec<Value> {
         let kps = Value::Array(vec![
             Value::F32(self.x_gains.kp),
             Value::F32(self.y_gains.kp),

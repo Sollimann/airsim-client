@@ -1,5 +1,6 @@
 use rmp_rpc::{Utf8String, Value};
 
+#[derive(Debug, Clone, Copy)]
 pub struct YawMode {
     is_rate: bool,
     yaw_or_rate: f32,

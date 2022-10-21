@@ -2,7 +2,7 @@ use rmp_rpc::Value;
 
 use crate::Vector3;
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Position3 {
     pub x: f32,
     pub y: f32,
@@ -15,7 +15,7 @@ impl Position3 {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Orientation3 {
     /// roll angle, in radians
     pub roll: f32,
@@ -31,7 +31,7 @@ impl Orientation3 {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Orientation2 {
     /// roll angle, in radians
     pub roll: f32,
@@ -45,7 +45,7 @@ impl Orientation2 {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Velocity3 {
     pub vx: f32,
     pub vy: f32,
@@ -58,7 +58,7 @@ impl Velocity3 {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Velocity2 {
     pub vx: f32,
     pub vy: f32,
@@ -71,7 +71,7 @@ impl Velocity2 {
 }
 
 /// The kinematic state of the vehicle
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct KinematicsState {
     /// position in the frame of the vehicle's starting point
     pub position: Position3,

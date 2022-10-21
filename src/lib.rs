@@ -9,6 +9,7 @@ pub use types::path::Path;
 pub use types::pose::{Orientation2, Orientation3, Position3, Velocity2, Velocity3};
 pub use types::pwm::PWM;
 pub use types::rc_data::RCData;
+pub use types::rotor_states::{RotorState, RotorStates};
 pub use types::vector::Vector3;
 pub use types::yaw_mode::YawMode;
 

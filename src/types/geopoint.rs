@@ -1,6 +1,6 @@
 use rmp_rpc::{message::Response, Value};
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct GeoPoint {
     pub latitude: f32,
     pub longitude: f32,

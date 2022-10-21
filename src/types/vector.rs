@@ -1,6 +1,6 @@
 use rmp_rpc::{Utf8String, Value};
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
@@ -12,7 +12,7 @@ impl Vector3 {
         Vector3 { x, y, z }
     }
 
-    pub(crate) fn to_msgpack(&self) -> Value {
+    pub(crate) fn as_msgpack(&self) -> Value {
         let x_val: Utf8String = "x_val".into();
         let y_val: Utf8String = "y_val".into();
         let z_val: Utf8String = "z_val".into();

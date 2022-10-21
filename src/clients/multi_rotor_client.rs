@@ -13,7 +13,7 @@ use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
-use crate::{LinearControllerGains, Path, Velocity2};
+use crate::{LinearControllerGains, Path, RotorStates, Velocity2};
 
 use super::airsim_client::AirsimClient;
 
@@ -194,7 +194,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(velocity.vy),
                     rmp_rpc::Value::F32(velocity.vz),
                     rmp_rpc::Value::F32(duration),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     Value::String(vehicle_name),
                 ]),
@@ -232,7 +232,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(velocity.vy),
                     rmp_rpc::Value::F32(z),
                     rmp_rpc::Value::F32(duration),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     Value::String(vehicle_name),
                 ]),
@@ -258,7 +258,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "setVelocityControllerGains".into(),
-                Some(velocity_gains.to_msgpack(self.vehicle_name)),
+                Some(velocity_gains.as_msgpack(self.vehicle_name)),
             )
             .await
             .map_err(Into::into)
@@ -291,7 +291,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(velocity.vy),
                     rmp_rpc::Value::F32(velocity.vz),
                     rmp_rpc::Value::F32(duration),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     Value::String(vehicle_name),
                 ]),
@@ -329,7 +329,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(velocity.vy),
                     rmp_rpc::Value::F32(z),
                     rmp_rpc::Value::F32(duration),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     Value::String(vehicle_name),
                 ]),
@@ -351,7 +351,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "setPositionControllerGains".into(),
-                Some(position_gains.to_msgpack(self.vehicle_name)),
+                Some(position_gains.as_msgpack(self.vehicle_name)),
             )
             .await
             .map_err(Into::into)
@@ -394,7 +394,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(position.z),
                     rmp_rpc::Value::F32(velocity),
                     rmp_rpc::Value::F32(timeout_sec),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     rmp_rpc::Value::F32(lookahead),
                     rmp_rpc::Value::F32(adaptive_lookahead),
@@ -440,7 +440,7 @@ impl MultiRotorClient {
                     path.to_msgpack(),
                     rmp_rpc::Value::F32(velocity),
                     rmp_rpc::Value::F32(timeout_sec),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     rmp_rpc::Value::F32(lookahead),
                     rmp_rpc::Value::F32(adaptive_lookahead),
@@ -488,7 +488,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(geopoint.altitude),
                     rmp_rpc::Value::F32(velocity),
                     rmp_rpc::Value::F32(timeout_sec),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     rmp_rpc::Value::F32(lookahead),
                     rmp_rpc::Value::F32(adaptive_lookahead),
@@ -575,7 +575,7 @@ impl MultiRotorClient {
                     rmp_rpc::Value::F32(v_max.vy),
                     rmp_rpc::Value::F32(z_min),
                     rmp_rpc::Value::F32(duration),
-                    drivetrain.to_msgpack(),
+                    drivetrain.as_msgpack(),
                     yaw_mode.to_msgpack(),
                     Value::String(vehicle_name),
                 ]),
@@ -597,7 +597,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "moveByRC".into(),
-                Some(vec![rc_data.to_msgpack(), Value::String(vehicle_name)]),
+                Some(vec![rc_data.as_msgpack(), Value::String(vehicle_name)]),
             )
             .await
             .map_err(Into::into)
@@ -655,7 +655,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "setAngleRateControllerGains".into(),
-                Some(angle_rate_gains.to_msgpack(self.vehicle_name)),
+                Some(angle_rate_gains.as_msgpack(self.vehicle_name)),
             )
             .await
             .map_err(Into::into)
@@ -682,7 +682,7 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc(
                 "setAngleLevelControllerGains".into(),
-                Some(angle_level_gains.to_msgpack(self.vehicle_name)),
+                Some(angle_level_gains.as_msgpack(self.vehicle_name)),
             )
             .await
             .map_err(Into::into)
@@ -911,5 +911,16 @@ impl MultiRotorClient {
             .await
             .map_err(Into::into)
             .map(MultiRotorState::from)
+    }
+
+    /// Used to obtain the current state of all a multirotor's rotors. The state includes the speeds,
+    /// thrusts and torques for all rotors.
+    pub async fn get_rotor_states(&self) -> NetworkResult<RotorStates> {
+        let vehicle_name: Utf8String = self.vehicle_name.into();
+        self.airsim_client
+            .unary_rpc("getRotorStates".into(), Some(vec![Value::String(vehicle_name)]))
+            .await
+            .map_err(Into::into)
+            .map(RotorStates::from)
     }
 }

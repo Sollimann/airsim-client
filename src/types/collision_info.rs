@@ -2,7 +2,7 @@ use rmp_rpc::Value;
 
 use crate::Vector3;
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct CollisionInfo {
     pub has_collided: bool,
     pub penetration_depth: f32,

@@ -4,7 +4,7 @@ use crate::GeoPoint;
 
 use super::{collision_info::CollisionInfo, pose::KinematicsState, rc_data::RCDataState};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum LandedState {
     Landed, // 0
     Flying, // 1
@@ -23,7 +23,7 @@ impl From<Value> for LandedState {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MultiRotorState {
     pub collision: CollisionInfo,
     pub kinematics_estimated: KinematicsState,

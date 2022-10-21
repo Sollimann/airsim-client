@@ -2,7 +2,7 @@ use rmp_rpc::{Utf8String, Value};
 
 use super::pose::Orientation3;
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct RCData {
     pub timestamp: u64,
     pub orientation: Orientation3,
@@ -33,7 +33,7 @@ impl RCData {
         }
     }
 
-    pub(crate) fn to_msgpack(&self) -> Value {
+    pub(crate) fn as_msgpack(&self) -> Value {
         let timestamp: Utf8String = "timestamp".into();
         let pitch: Utf8String = "pitch".into();
         let roll: Utf8String = "roll".into();
@@ -73,7 +73,7 @@ impl RCData {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct RCDataState {
     pub timestamp: u64,
     pub orientation: Orientation3,
