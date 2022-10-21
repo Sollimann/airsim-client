@@ -11,7 +11,7 @@ impl YawMode {
         Self { is_rate, yaw_or_rate }
     }
 
-    pub fn to_msgpack(&self) -> Value {
+    pub fn as_msgpack(&self) -> Value {
         let is_rate_str: Utf8String = "is_rate".into();
         let yaw_or_rate_str: Utf8String = "yaw_or_rate".into();
 
