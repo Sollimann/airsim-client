@@ -43,14 +43,12 @@ impl AirsimClient {
             .map_err(Into::into)
     }
 
-    /// TODO
-    ///
+    /// Get client version
     fn get_client_version() -> u64 {
         1
     }
 
-    /// TODO
-    ///
+    /// Get AirSim server version
     async fn get_server_version(&self) -> NetworkResult<u64> {
         self.unary_rpc("getServerVersion".to_owned(), None)
             .await
@@ -63,8 +61,7 @@ impl AirsimClient {
             .map_err(Into::into)
     }
 
-    /// TODO
-    ///
+    /// Get minimum required client version
     async fn get_min_required_client_version(&self) -> NetworkResult<u64> {
         self.unary_rpc("getMinRequiredClientVersion".to_owned(), None)
             .await
@@ -107,7 +104,6 @@ impl AirsimClient {
     }
 
     /// Checks state of the connection
-    ///
     pub(crate) async fn confirm_connection(&self) -> NetworkResult<bool> {
         let connected = self.ping().await?;
 
@@ -156,9 +152,8 @@ impl AirsimClient {
     pub async fn sim_continue_for_time(&self, seconds: f64) -> NetworkResult<()> {
         self.unary_rpc("simContinueFortime".into(), Some(vec![Value::F64(seconds)]))
             .await
-            .map_err::<NetworkError, _>(Into::into)?;
-
-        Ok(())
+            .map_err::<NetworkError, _>(Into::into)
+            .map(|_| ())
     }
 
     /// Continue (or resume if paused) the simulation for the specified number of frames,
@@ -169,9 +164,8 @@ impl AirsimClient {
     pub async fn sim_continue_for_frames(&self, frames: i64) -> NetworkResult<()> {
         self.unary_rpc("simContinueFortime".into(), Some(vec![Value::Integer(frames.into())]))
             .await
-            .map_err::<NetworkError, _>(Into::into)?;
-
-        Ok(())
+            .map_err::<NetworkError, _>(Into::into)
+            .map(|_| ())
     }
 
     /// Change intensity of named light
@@ -179,11 +173,12 @@ impl AirsimClient {
     /// args:
     ///     light_name (str): Name of light to change
     ///     intensity (f32): New intensity value
-    pub async fn sim_set_light_intensity(&self, _light_name: &str, _intensity: f32) -> bool {
+    pub async fn sim_set_light_intensity(&self, _light_name: &str, _intensity: f32) -> NetworkResult<bool> {
         unimplemented!("todo")
     }
 
     /// Runtime swap texture API
+    ///
     /// Returns vector of objects which matched the provided tags and had the texture swap perfomed
     /// See https://microsoft.github.io/AirSim/retexturing/ for details
     ///
@@ -203,20 +198,87 @@ impl AirsimClient {
     }
 
     /// Runtime swap texture API
+    ///
     /// Returns True if material was set
     /// See https://microsoft.github.io/AirSim/retexturing/ for details
     ///
     /// args:
     ///     object_name (&str): Name of the object to set material for
     ///     material_name (&str): Name of the material to set for object
-    ///     component_id (Option<i32>): id of the component
+    ///     component_id (Option<i32>): Id of the component
     pub async fn sim_set_object_material(
         &self,
         _tags: &str,
         _tex_id: Option<i32>,
         _component_id: Option<i32>,
         _material_id: Option<i32>,
-    ) -> NetworkResult<Vec<String>> {
+    ) -> NetworkResult<bool> {
+        unimplemented!("todo")
+    }
+
+    /// Runtime swap texture API
+    ///
+    /// Returns True if material was set
+    /// See https://microsoft.github.io/AirSim/retexturing/ for details
+    ///
+    /// args:
+    ///     object_name (&str): Name of the object to set material for
+    ///     material_name (&str): Name of the material to set for object
+    ///     component_id (Option<i32>): Id of the component
+    pub async fn sim_set_object_material_from_texture(
+        &self,
+        _tags: &str,
+        _tex_id: Option<i32>,
+        _component_id: Option<i32>,
+        _material_id: Option<i32>,
+    ) -> NetworkResult<bool> {
+        unimplemented!("todo")
+    }
+
+    /// Time API
+    ///
+    /// Control the position of Sun in the environment
+    /// Sun's position is computed using the coordinates specified in `OriginGeopoint` in settings for the date-time specified in the argument,
+    /// else if the string is empty, current date & time is used
+    ///
+    /// args:
+    ///    is_enabled (bool): True to enable time-of-day effect, False to reset the position to original
+    ///    start_datetime (Option<bool>): Date & Time in %Y-%m-%d %H:%M:%S format, e.g. `2018-02-12 15:20:00`
+    ///    is_start_datetime_dst (Option<bool): True to adjust for Daylight Savings Time
+    ///    celestial_clock_speed (Option<f32>): Run celestial clock faster or slower than simulation clock
+    ///                                             E.g. Value 100 means for every 1 second of simulation clock, Sun's position is advanced by 100 seconds
+    ///                                             so Sun will move in sky much faster
+    ///    update_interval_secs (Option<f32>): Interval to update the Sun's position
+    ///    move_sun (Option<bool>): Whether or not to move the Sun
+    pub async fn sim_set_time_of_day(
+        &self,
+        _is_enabled: bool,
+        _start_datetime: &str,
+        _is_start_datetime_dst: bool,
+        _celestial_clock_speed: f32,
+        _update_interval_secs: f32,
+        _move_sun: bool,
+    ) -> NetworkResult<()> {
+        unimplemented!("todo")
+    }
+
+    /// Weather API
+    ///
+    /// Enable Weather effects. Needs to be called before using `sim_set_weather_parameter()` method
+    /// args:
+    ///     enable (bool): true to enable, false to disable
+    pub async fn sim_enable_weather(&self, _enable: bool) -> NetworkResult<()> {
+        unimplemented!("todo")
+    }
+
+    /// Weather API
+    ///
+    /// Enable various weather effects
+    ///
+    /// args:
+    ///     param (WeatherParameter): Weather effect to be enabled
+    ///     val (f32): Intensity of the effect, Range 0-1
+    pub async fn sim_set_weather_api(&self, _enable: bool) -> NetworkResult<()> {
         unimplemented!("todo")
     }
 }
