@@ -21,7 +21,6 @@ impl From<Value> for Position3 {
 
         // position
         let mut points = vec![];
-        println!("pos payload {payload:?}");
         for (_, v) in payload {
             let p = v.as_f64().unwrap() as f32;
             points.push(p);
