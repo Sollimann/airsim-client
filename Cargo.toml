@@ -34,6 +34,7 @@ tokio = { version = "1.17.0", features = [
 [dev-dependencies]
 env_logger = "0.9.0"
 
+# MultiRotor examples
 [[example]]
 crate-type = ["bin"]
 name = "connect_drone"
@@ -78,3 +79,9 @@ path = "examples/multirotor/set_gains.rs"
 crate-type = ["bin"]
 name = "multirotor_state"
 path = "examples/multirotor/state.rs"
+
+# Simulation examples
+[[example]]
+crate-type = ["bin"]
+name = "light_control"
+path = "examples/environment/light_control.rs"

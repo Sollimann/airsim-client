@@ -9,6 +9,7 @@ pub mod pose;
 pub mod pwm;
 pub mod rc_data;
 pub mod rotor_states;
+pub mod simulation;
 pub mod vector;
 pub mod weather;
 pub mod yaw_mode;

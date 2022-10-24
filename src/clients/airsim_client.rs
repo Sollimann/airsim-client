@@ -7,8 +7,9 @@ use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::{
-    error::NetworkResult, types::geopoint::GeoPoint, CompressedImage, ImageType, MsgPackClient, NetworkError,
-    WeatherParameter,
+    error::NetworkResult,
+    types::{geopoint::GeoPoint, pose::Pose3},
+    CompressedImage, ImageType, MsgPackClient, NetworkError, SceneObjects, WeatherParameter,
 };
 
 pub struct AirsimClient {
@@ -17,7 +18,7 @@ pub struct AirsimClient {
 }
 
 impl AirsimClient {
-    pub async fn new(addrs: impl ToSocketAddrs, vehicle_name: &str) -> NetworkResult<Self> {
+    pub async fn connect(addrs: impl ToSocketAddrs, vehicle_name: &str) -> NetworkResult<Self> {
         let airsim = Self {
             last_request_id: AtomicU32::new(0),
             client: MsgPackClient::connect(addrs).await?,
@@ -107,7 +108,7 @@ impl AirsimClient {
     }
 
     /// Checks state of the connection
-    pub(crate) async fn confirm_connection(&self) -> NetworkResult<bool> {
+    pub async fn confirm_connection(&self) -> NetworkResult<bool> {
         let connected = self.ping().await?;
 
         log::info!("Connected to Airsim: {}", connected);
@@ -176,8 +177,46 @@ impl AirsimClient {
     /// args:
     ///     light_name (str): Name of light to change
     ///     intensity (f32): New intensity value
-    pub async fn sim_set_light_intensity(&self, _light_name: &str, _intensity: f32) -> NetworkResult<bool> {
-        unimplemented!("todo")
+    pub async fn sim_set_light_intensity(&self, light_name: &str, intensity: f32) -> NetworkResult<bool> {
+        let light_name: Utf8String = light_name.into();
+
+        self.unary_rpc(
+            "simSetLightIntensity".into(),
+            Some(vec![Value::String(light_name), Value::F32(intensity)]),
+        )
+        .await
+        .map_err(Into::into)
+        .map(|response| {
+            println!("resp: {response:?}");
+            response.result.is_ok() && response.result.unwrap().as_bool() == Some(true)
+        })
+    }
+
+    /// Change intensity of named light
+    ///
+    /// args:
+    ///     light_name (str): Name of light to change
+    ///     intensity (f32): New intensity value
+    pub async fn sim_list_scene_objects(&self, name_regex: &str) -> NetworkResult<SceneObjects> {
+        let name_regex: Utf8String = name_regex.into();
+
+        self.unary_rpc("simListSceneObjects".into(), Some(vec![Value::String(name_regex)]))
+            .await
+            .map_err(Into::into)
+            .map(SceneObjects::from)
+    }
+
+    /// The position inside the returned Pose is in the world frame
+    ///
+    /// args:
+    ///     object_name (&str): Object to get the Pose (Position3) of
+    pub async fn sim_get_object_pose(&self, name_regex: &str) -> NetworkResult<Pose3> {
+        let name_regex: Utf8String = name_regex.into();
+
+        self.unary_rpc("simGetObjectPose".into(), Some(vec![Value::String(name_regex)]))
+            .await
+            .map_err(Into::into)
+            .map(Pose3::from)
     }
 
     /// Runtime swap texture API

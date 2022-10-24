@@ -13,7 +13,7 @@ pub struct CarClient {
 
 impl CarClient {
     pub async fn connect(addrs: impl ToSocketAddrs, vehicle_name: &'static str) -> NetworkResult<Self> {
-        let airsim_client = AirsimClient::new(addrs, vehicle_name).await?;
+        let airsim_client = AirsimClient::connect(addrs, vehicle_name).await?;
         Ok(Self {
             airsim_client,
             vehicle_name,
