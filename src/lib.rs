@@ -5,12 +5,14 @@ pub use error::{DecodeError, NetworkError, NetworkResult};
 pub use types::drive_train::DrivetrainType;
 pub use types::gains::{AngularControllerGains, LinearControllerGains, PIDGains};
 pub use types::geopoint::GeoPoint;
+pub use types::image::{CompressedImage, ImageType};
 pub use types::path::Path;
 pub use types::pose::{Orientation2, Orientation3, Position3, Velocity2, Velocity3};
 pub use types::pwm::PWM;
 pub use types::rc_data::RCData;
 pub use types::rotor_states::{RotorState, RotorStates};
 pub use types::vector::Vector3;
+pub use types::weather::WeatherParameter;
 pub use types::yaw_mode::YawMode;
 
 pub(crate) use msgpack::MsgPackClient;

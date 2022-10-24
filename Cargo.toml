@@ -37,44 +37,44 @@ env_logger = "0.9.0"
 [[example]]
 crate-type = ["bin"]
 name = "connect_drone"
-path = "examples/connect.rs"
+path = "examples/multirotor/connect.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "takeoff_and_land"
-path = "examples/takeoff_move_and_land.rs"
+path = "examples/multirotor/takeoff_move_and_land.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "move_by"
-path = "examples/move_by.rs"
+path = "examples/multirotor/move_by.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "move_on_path"
-path = "examples/move_on_path.rs"
+path = "examples/multirotor/move_on_path.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "manual_mode"
-path = "examples/manual_mode.rs"
+path = "examples/multirotor/manual_mode.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "motor_pwm"
-path = "examples/move_by_pwm.rs"
+path = "examples/multirotor/move_by_pwm.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "move_by_rpy"
-path = "examples/move_by_rpy.rs"
+path = "examples/multirotor/move_by_rpy.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "set_gains"
-path = "examples/set_gains.rs"
+path = "examples/multirotor/set_gains.rs"
 
 [[example]]
 crate-type = ["bin"]
 name = "multirotor_state"
-path = "examples/state.rs"
+path = "examples/multirotor/state.rs"

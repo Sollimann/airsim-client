@@ -6,7 +6,10 @@ use rmp_rpc::{
 use rmpv::Value;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use crate::{error::NetworkResult, types::geopoint::GeoPoint, MsgPackClient, NetworkError};
+use crate::{
+    error::NetworkResult, types::geopoint::GeoPoint, CompressedImage, ImageType, MsgPackClient, NetworkError,
+    WeatherParameter,
+};
 
 pub struct AirsimClient {
     client: MsgPackClient,
@@ -278,7 +281,11 @@ impl AirsimClient {
     /// args:
     ///     param (WeatherParameter): Weather effect to be enabled
     ///     val (f32): Intensity of the effect, Range 0-1
-    pub async fn sim_set_weather_api(&self, _enable: bool) -> NetworkResult<()> {
+    pub async fn sim_set_weather_parameter(&self, _param: WeatherParameter, val: f32) -> NetworkResult<()> {
+        if val.is_sign_negative() || val > 1.0 {
+            panic!("val outside of valid range 0.0 to 1.0")
+        }
+
         unimplemented!("todo")
     }
 }
@@ -289,7 +296,7 @@ impl AirsimClient {
     ///
     /// args:
     ///     is_enabled (bool): True to enable, False to disable API control
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     pub(crate) async fn enable_api_control(&self, is_enabled: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
 
@@ -308,7 +315,7 @@ impl AirsimClient {
     /// to `enableApiControl`, `isApiControlEnabled` should return true.
     ///
     /// args:
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     pub(crate) async fn is_api_control_enabled(
         &self,
         is_enabled: bool,
@@ -332,7 +339,7 @@ impl AirsimClient {
     ///
     /// args:
     ///     arm (bool): True to arm, False to disarm the vehicle
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     pub(crate) async fn arm_disarm(&self, arm: bool, vehicle_name: Option<&str>) -> NetworkResult<bool> {
         let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
 
@@ -347,8 +354,8 @@ impl AirsimClient {
 
     /// Get the Home location of the vehicle
     ///
-    /// Args:
-    ///     vehicle_name (Option<String>): Name of the vehicle to send this command to
+    /// args:
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     pub(crate) async fn get_home_geo_point(&self, vehicle_name: Option<&str>) -> Result<GeoPoint, NetworkError> {
         let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
 
@@ -356,5 +363,27 @@ impl AirsimClient {
             .await
             .map_err(Into::into)
             .map(GeoPoint::from)
+    }
+
+    /// Camera API
+    ///
+    /// Returns binary string literal of compressed png image in presented as an vector of bytes
+    ///
+    /// Returns bytes of png format image which can be dumped into abinary file to create .png image
+    /// See https://microsoft.github.io/AirSim/image_apis/ for details
+    ///
+    /// args:
+    ///     camera_name (String): Name of the camera, for backwards compatibility, ID numbers such as 0,1,etc. can also be used
+    ///     image_type (ImageType): Type of image required
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
+    ///     external (Option<bool>): Whether the camera is an External Camera
+    pub(crate) async fn _sim_get_image(
+        &self,
+        _camera_name: &str,
+        _image_type: ImageType,
+        _vehicle_name: Option<&str>,
+        _external: Option<bool>,
+    ) -> Result<CompressedImage, NetworkError> {
+        unimplemented!("todo")
     }
 }
