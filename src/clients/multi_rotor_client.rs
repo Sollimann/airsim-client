@@ -99,7 +99,6 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc("hover".into(), Some(vec![Value::String(vehicle_name)]))
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok())
     }
 
@@ -123,7 +122,6 @@ impl MultiRotorClient {
                 Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -143,7 +141,6 @@ impl MultiRotorClient {
                 Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -164,7 +161,6 @@ impl MultiRotorClient {
                 Some(vec![Value::F32(timeout_sec), Value::String(vehicle_name)]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -200,7 +196,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -238,7 +233,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -261,7 +255,6 @@ impl MultiRotorClient {
                 Some(velocity_gains.as_msgpack(self.vehicle_name)),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok())
     }
 
@@ -297,7 +290,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -335,7 +327,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -354,7 +345,6 @@ impl MultiRotorClient {
                 Some(position_gains.as_msgpack(self.vehicle_name)),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok())
     }
 
@@ -402,7 +392,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -448,7 +437,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -496,7 +484,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -539,7 +526,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -581,7 +567,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -600,7 +585,6 @@ impl MultiRotorClient {
                 Some(vec![rc_data.as_msgpack(), Value::String(vehicle_name)]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.unwrap())
             .map(|value| {
                 if !value.is_nil() {
@@ -633,7 +617,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -658,7 +641,6 @@ impl MultiRotorClient {
                 Some(angle_rate_gains.as_msgpack(self.vehicle_name)),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok())
     }
 
@@ -685,7 +667,6 @@ impl MultiRotorClient {
                 Some(angle_level_gains.as_msgpack(self.vehicle_name)),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok())
     }
 
@@ -718,7 +699,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -755,7 +735,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -793,7 +772,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -828,7 +806,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -862,7 +839,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -899,7 +875,6 @@ impl MultiRotorClient {
                 ]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -909,7 +884,6 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc("getMultirotorState".into(), Some(vec![Value::String(vehicle_name)]))
             .await
-            .map_err(Into::into)
             .map(MultiRotorState::from)
     }
 
@@ -920,7 +894,6 @@ impl MultiRotorClient {
         self.airsim_client
             .unary_rpc("getRotorStates".into(), Some(vec![Value::String(vehicle_name)]))
             .await
-            .map_err(Into::into)
             .map(RotorStates::from)
     }
 }

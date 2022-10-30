@@ -47,7 +47,11 @@ impl MsgPackClient {
             // 1,024 bytes = 1 kB
             // 1kB x 1000 = 1mB
             let buf_size: usize = 1024 * 100; // 0.1mB
+
+            // for some reason, msgpack expects a fixed size
+            // for the bytes buffer
             let mut buf = vec![0_u8; buf_size];
+            // let mut buf = vec![];
             loop {
                 let to_process = select! {
                     maybe_request = request_receiver.recv().fuse() => {
@@ -102,7 +106,7 @@ impl MsgPackClient {
                             }
                             Err(e) => {
                                 // DecodeError
-                                panic!("{}", e);
+                                panic!("{e}");
                             }
                         };
 

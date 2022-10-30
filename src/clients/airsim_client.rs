@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use crate::{
     error::NetworkResult,
     types::{geopoint::GeoPoint, pose::Pose3},
-    CompressedImage, ImageType, MsgPackClient, NetworkError, SceneObjects, WeatherParameter,
+    CompressedImage, ImageType, MsgPackClient, NetworkError, SceneObjects, Vector3, WeatherParameter,
 };
 
 pub struct AirsimClient {
@@ -44,7 +44,6 @@ impl AirsimClient {
                 params: params.unwrap_or_default(),
             })
             .await
-            .map_err(Into::into)
     }
 
     /// Get client version
@@ -54,15 +53,12 @@ impl AirsimClient {
 
     /// Get AirSim server version
     async fn get_server_version(&self) -> NetworkResult<u64> {
-        self.unary_rpc("getServerVersion".to_owned(), None)
-            .await
-            .map(|res| {
-                res.result
-                    .unwrap_or_else(|_| rmpv::Value::Integer(0.into()))
-                    .as_u64()
-                    .unwrap_or(0)
-            })
-            .map_err(Into::into)
+        self.unary_rpc("getServerVersion".to_owned(), None).await.map(|res| {
+            res.result
+                .unwrap_or_else(|_| rmpv::Value::Integer(0.into()))
+                .as_u64()
+                .unwrap_or(0)
+        })
     }
 
     /// Get minimum required client version
@@ -75,7 +71,6 @@ impl AirsimClient {
                     .as_u64()
                     .unwrap_or(0)
             })
-            .map_err(Into::into)
     }
 
     #[inline]
@@ -90,21 +85,17 @@ impl AirsimClient {
         self.unary_rpc("reset".to_owned(), None)
             .await
             .map(|res| res.result.unwrap_or(rmpv::Value::Nil).is_nil())
-            .map_err(Into::into)
     }
 
     /// If connection is established then this call will return `True` otherwise
     /// the request will be blocked until timeout (default value)
     pub async fn ping(&self) -> NetworkResult<bool> {
-        self.unary_rpc("ping".to_owned(), None)
-            .await
-            .map(|res| {
-                res.result
-                    .unwrap_or(rmpv::Value::Boolean(false))
-                    .as_bool()
-                    .unwrap_or(false)
-            })
-            .map_err(Into::into)
+        self.unary_rpc("ping".to_owned(), None).await.map(|res| {
+            res.result
+                .unwrap_or(rmpv::Value::Boolean(false))
+                .as_bool()
+                .unwrap_or(false)
+        })
     }
 
     /// Checks state of the connection
@@ -137,7 +128,6 @@ impl AirsimClient {
     pub async fn sim_pause(&self, is_paused: bool) -> NetworkResult<bool> {
         self.unary_rpc("simPause".into(), Some(vec![Value::Boolean(is_paused)]))
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -145,7 +135,6 @@ impl AirsimClient {
     pub async fn sim_is_pause(&self) -> NetworkResult<bool> {
         self.unary_rpc("simIsPause".into(), None)
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -156,7 +145,6 @@ impl AirsimClient {
     pub async fn sim_continue_for_time(&self, seconds: f64) -> NetworkResult<()> {
         self.unary_rpc("simContinueFortime".into(), Some(vec![Value::F64(seconds)]))
             .await
-            .map_err::<NetworkError, _>(Into::into)
             .map(|_| ())
     }
 
@@ -168,11 +156,13 @@ impl AirsimClient {
     pub async fn sim_continue_for_frames(&self, frames: i64) -> NetworkResult<()> {
         self.unary_rpc("simContinueFortime".into(), Some(vec![Value::Integer(frames.into())]))
             .await
-            .map_err::<NetworkError, _>(Into::into)
             .map(|_| ())
     }
 
-    /// Change intensity of named light
+    /// Light Control APIs
+    /// For more documentation: https://github.com/microsoft/AirSim/blob/b272597854f389e03bf7d9b9581666c91f2e24f9/docs/apis.md#light-control-apis
+    ///
+    /// Change intensity of named light. This method should be called after a `sim_spawn_object()` call
     ///
     /// args:
     ///     light_name (str): Name of light to change
@@ -185,11 +175,7 @@ impl AirsimClient {
             Some(vec![Value::String(light_name), Value::F32(intensity)]),
         )
         .await
-        .map_err(Into::into)
-        .map(|response| {
-            println!("resp: {response:?}");
-            response.result.is_ok() && response.result.unwrap().as_bool() == Some(true)
-        })
+        .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
     /// Change intensity of named light
@@ -202,7 +188,6 @@ impl AirsimClient {
 
         self.unary_rpc("simListSceneObjects".into(), Some(vec![Value::String(name_regex)]))
             .await
-            .map_err(Into::into)
             .map(SceneObjects::from)
     }
 
@@ -215,8 +200,65 @@ impl AirsimClient {
 
         self.unary_rpc("simGetObjectPose".into(), Some(vec![Value::String(name_regex)]))
             .await
-            .map_err(Into::into)
             .map(Pose3::from)
+    }
+
+    /// Removes selected object from the world
+    ///
+    /// Returns True if object is queued for removal
+    ///
+    /// args:
+    ///     object_name (&str): Name of object to be removed
+    pub async fn sim_destroy_object(&self, name_regex: &str) -> NetworkResult<bool> {
+        let name_regex: Utf8String = name_regex.into();
+
+        self.unary_rpc("simDestroyObject".into(), Some(vec![Value::String(name_regex)]))
+            .await
+            .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
+    }
+
+    /// Spawned selected object in the world
+    ///
+    /// NOTE!!: This method currently crashes the AirSim application
+    ///
+    /// Returns name of spawned object, in case it had to be modified
+    ///
+    /// args:
+    ///     object_name (&str): Name of object to be removed
+    ///     asset_name (&str): Name of asset(mesh) in the project database: PointLightBP or SpotLightBP
+    ///     pose (Pose3): Desired pose of object
+    ///     scale (Vector3): Desired scale of object
+    ///     physics_enabled (Option<bool>): Whether to enable physics for the object
+    ///     is_blueprint (Option<bool>): Whether to spawn a blueprint or an actor
+    #[allow(clippy::too_many_arguments)]
+    pub async fn sim_spawn_object(
+        &self,
+        name_regex: &str,
+        asset_name: &str,
+        pose: Pose3,
+        scale: Vector3,
+        physics_enabled: Option<bool>,
+        is_blueprint: Option<bool>,
+    ) -> NetworkResult<String> {
+        let name_regex: Utf8String = name_regex.into();
+        let asset_name: Utf8String = asset_name.into();
+        let physics_enabled = physics_enabled.unwrap_or(false);
+        let is_blueprint = is_blueprint.unwrap_or(false);
+
+        self.unary_rpc(
+            "simSpawnObject".into(),
+            Some(vec![
+                Value::String(name_regex),
+                Value::String(asset_name),
+                pose.as_msgpack(),
+                scale.as_msgpack(),
+                Value::Boolean(physics_enabled),
+                Value::Boolean(is_blueprint),
+            ]),
+        )
+        .await
+        .map(|response| response.result.unwrap())
+        .map(|val| val.as_str().unwrap().to_string())
     }
 
     /// Runtime swap texture API
@@ -344,7 +386,6 @@ impl AirsimClient {
             Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
         )
         .await
-        .map_err(Into::into)
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -367,7 +408,6 @@ impl AirsimClient {
             Some(vec![Value::Boolean(is_enabled), Value::String(vehicle_name)]),
         )
         .await
-        .map_err(Into::into)
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -387,7 +427,6 @@ impl AirsimClient {
             Some(vec![Value::Boolean(arm), Value::String(vehicle_name)]),
         )
         .await
-        .map_err(Into::into)
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
@@ -400,7 +439,6 @@ impl AirsimClient {
 
         self.unary_rpc("getHomeGeoPoint".into(), Some(vec![Value::String(vehicle_name)]))
             .await
-            .map_err(Into::into)
             .map(GeoPoint::from)
     }
 

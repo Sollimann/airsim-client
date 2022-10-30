@@ -2,7 +2,7 @@ use airsim_client::{DrivetrainType, MultiRotorClient, NetworkResult, Path, Vecto
 use async_std::task;
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "172.17.144.1:41451"; // set with env variable
+    let address = "172.22.224.1:41451"; // set with env variable
     let vehicle_name = "";
 
     log::info!("Start!");

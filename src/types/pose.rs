@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Value};
+use rmp_rpc::{message::Response, Utf8String, Value};
 
 use crate::Vector3;
 
@@ -83,19 +83,63 @@ impl Pose3 {
     pub fn new(position: Position3, orientation: Quaternion) -> Self {
         Self { position, orientation }
     }
+
+    pub(crate) fn as_msgpack(&self) -> Value {
+        // position
+        let x_val: Utf8String = "x_val".into();
+        let y_val: Utf8String = "y_val".into();
+        let z_val: Utf8String = "z_val".into();
+
+        let position = Value::Map(vec![
+            (Value::String(x_val.to_owned()), Value::F32(self.position.x)),
+            (Value::String(y_val.to_owned()), Value::F32(self.position.y)),
+            (Value::String(z_val.to_owned()), Value::F32(self.position.z)),
+        ]);
+
+        let pos_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = position.as_map().map(|x| x.to_owned()).unwrap();
+        let position_msg = Value::Map(pos_msg);
+
+        // orientation
+        let w_val: Utf8String = "w_val".into();
+
+        let orientation = Value::Map(vec![
+            (Value::String(w_val), Value::F32(self.orientation.w)),
+            (Value::String(x_val), Value::F32(self.orientation.x)),
+            (Value::String(y_val), Value::F32(self.orientation.y)),
+            (Value::String(z_val), Value::F32(self.orientation.z)),
+        ]);
+
+        let orr_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = orientation.as_map().map(|x| x.to_owned()).unwrap();
+        let orientation_msg = Value::Map(orr_msg);
+
+        // pose
+        let position_key: Utf8String = "position".into();
+        let orientation_key: Utf8String = "orientation".into();
+
+        let pose = Value::Map(vec![
+            (Value::String(position_key), position_msg),
+            (Value::String(orientation_key), orientation_msg),
+        ]);
+
+        let pose_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = pose.as_map().map(|x| x.to_owned()).unwrap();
+        Value::Map(pose_msg)
+    }
 }
 
 impl From<Response> for Pose3 {
     fn from(msgpack: Response) -> Self {
+        println!("\n received pose: {msgpack:?} \n \n");
         match msgpack.result {
             Ok(res) => {
                 let payload: &Vec<(Value, Value)> = res.as_map().unwrap();
 
                 // position
                 let position: Position3 = payload[0].1.to_owned().into();
+                // println!("pose3 position: {position:?}");
 
                 // orientation
                 let orientation: Quaternion = payload[1].1.to_owned().into();
+                // println!("pose3 orientation: {orientation:?}");
 
                 Self { position, orientation }
             }

@@ -93,7 +93,6 @@ impl CarClient {
                 Some(vec![Value::Integer(timeout_sec.into()), Value::String(vehicle_name)]),
             )
             .await
-            .map_err(Into::into)
             .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 }
