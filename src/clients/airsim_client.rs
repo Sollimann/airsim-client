@@ -330,18 +330,18 @@ impl AirsimClient {
     ///    start_datetime (Option<bool>): Date & Time in %Y-%m-%d %H:%M:%S format, e.g. `2018-02-12 15:20:00`
     ///    is_start_datetime_dst (Option<bool): True to adjust for Daylight Savings Time
     ///    celestial_clock_speed (Option<f32>): Run celestial clock faster or slower than simulation clock
-    ///                                             E.g. Value 100 means for every 1 second of simulation clock, Sun's position is advanced by 100 seconds
-    ///                                             so Sun will move in sky much faster
+    ///                                         E.g. Value 100 means for every 1 second of simulation clock, Sun's position is advanced by 100 seconds
+    ///                                         so Sun will move in sky much faster
     ///    update_interval_secs (Option<f32>): Interval to update the Sun's position
     ///    move_sun (Option<bool>): Whether or not to move the Sun
     pub async fn sim_set_time_of_day(
         &self,
         _is_enabled: bool,
         _start_datetime: &str,
-        _is_start_datetime_dst: bool,
-        _celestial_clock_speed: f32,
-        _update_interval_secs: f32,
-        _move_sun: bool,
+        _is_start_datetime_dst: Option<bool>,
+        _celestial_clock_speed: Option<f32>,
+        _update_interval_secs: Option<f32>,
+        _move_sun: Option<bool>,
     ) -> NetworkResult<()> {
         unimplemented!("todo")
     }
@@ -450,17 +450,72 @@ impl AirsimClient {
     /// See https://microsoft.github.io/AirSim/image_apis/ for details
     ///
     /// args:
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     ///     camera_name (String): Name of the camera, for backwards compatibility, ID numbers such as 0,1,etc. can also be used
     ///     image_type (ImageType): Type of image required
-    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
     ///     external (Option<bool>): Whether the camera is an External Camera
-    pub(crate) async fn _sim_get_image(
+    pub(crate) async fn sim_get_image(
         &self,
-        _camera_name: &str,
-        _image_type: ImageType,
-        _vehicle_name: Option<&str>,
-        _external: Option<bool>,
+        vehicle_name: Option<&str>,
+        camera_name: &str,
+        image_type: ImageType,
+        external: Option<bool>,
     ) -> Result<CompressedImage, NetworkError> {
-        unimplemented!("todo")
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+        let camera_name: Utf8String = camera_name.into();
+        let external: bool = external.unwrap_or(false);
+
+        self.unary_rpc(
+            "simGetImage".into(),
+            Some(vec![
+                Value::String(camera_name),
+                image_type.as_msgpack(),
+                Value::String(vehicle_name),
+                Value::Boolean(external),
+            ]),
+        )
+        .await
+        .map(|response| {
+            println!("resp: {response:?}");
+            CompressedImage::from(response)
+        })
+    }
+
+    /// Camera API
+    ///
+    /// Get multiple images
+    /// See https://microsoft.github.io/AirSim/image_apis/ for details and examples
+    /// Args:
+    ///     requests (list[ImageRequest]): Images required
+    ///     vehicle_name (str, optional): Name of vehicle associated with the camera
+    ///     external (bool, optional): Whether the camera is an External Camera
+    /// Returns:
+    ///     list[ImageResponse]:
+    #[allow(dead_code)]
+    pub(crate) async fn sim_get_images(
+        &self,
+        vehicle_name: Option<&str>,
+        camera_name: &str,
+        image_type: ImageType,
+        external: Option<bool>,
+    ) -> Result<CompressedImage, NetworkError> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+        let camera_name: Utf8String = camera_name.into();
+        let external: bool = external.unwrap_or(false);
+
+        self.unary_rpc(
+            "simGetImage".into(),
+            Some(vec![
+                Value::String(camera_name),
+                image_type.as_msgpack(),
+                Value::String(vehicle_name),
+                Value::Boolean(external),
+            ]),
+        )
+        .await
+        .map(|response| {
+            println!("resp: {response:?}");
+            CompressedImage::from(response)
+        })
     }
 }

@@ -13,7 +13,7 @@ use crate::types::pwm::PWM;
 use crate::types::rc_data::RCData;
 use crate::types::yaw_mode::YawMode;
 use crate::{error::NetworkResult, NetworkError};
-use crate::{LinearControllerGains, Path, RotorStates, Velocity2};
+use crate::{CompressedImage, ImageType, LinearControllerGains, Path, RotorStates, Velocity2};
 
 use super::airsim_client::AirsimClient;
 
@@ -895,5 +895,29 @@ impl MultiRotorClient {
             .unary_rpc("getRotorStates".into(), Some(vec![Value::String(vehicle_name)]))
             .await
             .map(RotorStates::from)
+    }
+
+    /// Camera API
+    ///
+    /// Returns binary string literal of compressed png image in presented as an vector of bytes
+    ///
+    /// Returns bytes of png format image which can be dumped into abinary file to create .png image
+    /// See https://microsoft.github.io/AirSim/image_apis/ for details
+    ///
+    /// args:
+    ///     vehicle_name (Option<&str>): Name of the vehicle to send this command to
+    ///     camera_name (String): Name of the camera, for backwards compatibility, ID numbers such as 0,1,etc. can also be used
+    ///     image_type (ImageType): Type of image required
+    ///     external (Option<bool>): Whether the camera is an External Camera
+    #[inline(always)]
+    pub async fn sim_get_image(
+        &self,
+        camera_name: &str,
+        image_type: ImageType,
+        external: Option<bool>,
+    ) -> Result<CompressedImage, NetworkError> {
+        self.airsim_client
+            .sim_get_image(Some(self.vehicle_name), camera_name, image_type, external)
+            .await
     }
 }

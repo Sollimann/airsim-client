@@ -80,6 +80,11 @@ crate-type = ["bin"]
 name = "multirotor_state"
 path = "examples/multirotor/state.rs"
 
+[[example]]
+crate-type = ["bin"]
+name = "multirotor_camera"
+path = "examples/multirotor/camera.rs"
+
 # Simulation examples
 [[example]]
 crate-type = ["bin"]

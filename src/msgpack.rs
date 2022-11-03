@@ -35,10 +35,10 @@ impl MsgPackClient {
         let mut stream = TcpStream::connect(addrs).await?;
         let response_channels = Arc::new(Mutex::new(HashMap::new()));
 
-        let (request_sender, request_receiver) = bounded::<Request>(1);
-        let (inner_request_sender, inner_request_receiver) = bounded::<Request>(1);
-        let (notification_sender, notification_receiver) = bounded::<Notification>(1);
-        let (inner_notification_sender, inner_notification_receiver) = bounded::<Notification>(1);
+        let (request_sender, request_receiver) = bounded::<Request>(100);
+        let (inner_request_sender, inner_request_receiver) = bounded::<Request>(100);
+        let (notification_sender, notification_receiver) = bounded::<Notification>(100);
+        let (inner_notification_sender, inner_notification_receiver) = bounded::<Notification>(100);
         let res_channels = Arc::clone(&response_channels);
 
         task::spawn(async move {
@@ -46,7 +46,7 @@ impl MsgPackClient {
 
             // 1,024 bytes = 1 kB
             // 1kB x 1000 = 1mB
-            let buf_size: usize = 1024 * 100; // 0.1mB
+            let buf_size: usize = 1024 * 1000; // 0.1mB
 
             // for some reason, msgpack expects a fixed size
             // for the bytes buffer
@@ -82,8 +82,10 @@ impl MsgPackClient {
                         stream.write_all(&message).await.expect("Couldn't send message");
                     }
                     Some(Rpc::Receive(n)) => {
+                        println!("received {n} bytes");
                         current_message.extend(&buf[..n]);
                         let mut frame = Cursor::new(current_message.clone());
+                        println!("frame {frame:?}");
                         let recv_res = match Message::decode(&mut frame) {
                             Ok(Message::Notification(n)) => inner_notification_sender
                                 .send(n)
