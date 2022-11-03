@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use crate::{
     error::NetworkResult,
     types::{geopoint::GeoPoint, pose::Pose3},
-    CompressedImage, ImageType, MsgPackClient, NetworkError, SceneObjects, Vector3, WeatherParameter,
+    CompressedImage, ImageRequests, ImageType, MsgPackClient, NetworkError, SceneObjects, Vector3, WeatherParameter,
 };
 
 pub struct AirsimClient {
@@ -494,20 +494,17 @@ impl AirsimClient {
     #[allow(dead_code)]
     pub(crate) async fn sim_get_images(
         &self,
+        requests: ImageRequests,
         vehicle_name: Option<&str>,
-        camera_name: &str,
-        image_type: ImageType,
         external: Option<bool>,
-    ) -> Result<CompressedImage, NetworkError> {
+    ) -> Result<(), NetworkError> {
         let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
-        let camera_name: Utf8String = camera_name.into();
         let external: bool = external.unwrap_or(false);
 
         self.unary_rpc(
-            "simGetImage".into(),
+            "simGetImages".into(),
             Some(vec![
-                Value::String(camera_name),
-                image_type.as_msgpack(),
+                requests.as_msgpack(),
                 Value::String(vehicle_name),
                 Value::Boolean(external),
             ]),
@@ -515,7 +512,7 @@ impl AirsimClient {
         .await
         .map(|response| {
             println!("resp: {response:?}");
-            CompressedImage::from(response)
+            // CompressedImage::from(response)
         })
     }
 }

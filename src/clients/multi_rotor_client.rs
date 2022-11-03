@@ -1,12 +1,12 @@
 use core::panic;
 
-use async_std::net::ToSocketAddrs;
 use msgpack_rpc::Utf8String;
 use rmpv::Value;
 
 use crate::types::drive_train::DrivetrainType;
 use crate::types::gains::AngularControllerGains;
 use crate::types::geopoint::GeoPoint;
+use crate::types::image::ImageRequests;
 use crate::types::multi_rotor_state::MultiRotorState;
 use crate::types::pose::{Orientation2, Orientation3, Position3, Velocity3};
 use crate::types::pwm::PWM;
@@ -23,7 +23,7 @@ pub struct MultiRotorClient {
 }
 
 impl MultiRotorClient {
-    pub async fn connect(addrs: impl ToSocketAddrs, vehicle_name: &'static str) -> NetworkResult<Self> {
+    pub async fn connect(addrs: &str, vehicle_name: &'static str) -> NetworkResult<Self> {
         let airsim_client = AirsimClient::connect(addrs, vehicle_name).await?;
         Ok(Self {
             airsim_client,
@@ -918,6 +918,22 @@ impl MultiRotorClient {
     ) -> Result<CompressedImage, NetworkError> {
         self.airsim_client
             .sim_get_image(Some(self.vehicle_name), camera_name, image_type, external)
+            .await
+    }
+
+    /// Camera API
+    ///
+    /// Get multiple images
+    /// See https://microsoft.github.io/AirSim/image_apis/ for details and examples
+    ///
+    /// Args:
+    ///     requests (ImageRequests): Images required
+    ///     vehicle_name (Option<&str>): Name of vehicle associated with the camera
+    ///     external (Option<bool>): Whether the camera is an External Camera
+    #[inline(always)]
+    pub async fn sim_get_images(&self, requests: ImageRequests, external: Option<bool>) -> Result<(), NetworkError> {
+        self.airsim_client
+            .sim_get_images(requests, Some(self.vehicle_name), external)
             .await
     }
 }

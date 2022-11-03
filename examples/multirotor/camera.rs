@@ -1,4 +1,4 @@
-use airsim_client::{ImageType, MultiRotorClient, NetworkResult};
+use airsim_client::{ImageRequest, ImageRequests, ImageType, MultiRotorClient, NetworkResult};
 use async_std::task;
 
 #[allow(clippy::no_effect)]
@@ -78,9 +78,21 @@ async fn connect_drone() -> NetworkResult<()> {
     // log::info!("take off completed");
 
     // use camera
-    log::info!("get vehicle image");
-    client.sim_get_image("high_res", ImageType::Scene, Some(false)).await?;
-    // log::info!("image response: {}");
+    log::info!("get vehicle images");
+    // let img = client.sim_get_image("high_res", ImageType::Scene, Some(false)).await?;
+    let _img = client
+        .sim_get_images(
+            ImageRequests(vec![ImageRequest {
+                camera_name: "low_res".to_string(),
+                image_type: ImageType::Scene,
+                pixels_as_float: false,
+                compress: false,
+            }]),
+            Some(false),
+        )
+        .await;
+
+    log::info!("image response: {_img:?}");
 
     client.arm_disarm(false).await?;
     client.enable_api_control(false).await?;
