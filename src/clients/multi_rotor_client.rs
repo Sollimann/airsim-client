@@ -931,9 +931,10 @@ impl MultiRotorClient {
     ///     vehicle_name (Option<&str>): Name of vehicle associated with the camera
     ///     external (Option<bool>): Whether the camera is an External Camera
     #[inline(always)]
-    pub async fn sim_get_images(&self, requests: ImageRequests, external: Option<bool>) -> Result<(), NetworkError> {
-        self.airsim_client
-            .sim_get_images(requests, Some(self.vehicle_name), external)
-            .await
+    pub async fn sim_get_images(&self, _requests: ImageRequests, _external: Option<bool>) -> Result<(), NetworkError> {
+        // self.airsim_client
+        //     .sim_get_images(requests, Some(self.vehicle_name), external)
+        //     .await
+        unimplemented!("todo");
     }
 }
