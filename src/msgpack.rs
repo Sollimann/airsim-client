@@ -6,7 +6,7 @@ use async_std::sync::{Arc, Mutex};
 use async_std::task;
 use futures::future::FutureExt;
 use futures::select;
-use rmp_rpc::message::{Message, Notification, Request, Response};
+use msgpack_rpc::message::{Message, Notification, Request, Response};
 use std::collections::HashMap;
 use std::io::Cursor;
 

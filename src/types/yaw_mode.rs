@@ -1,4 +1,4 @@
-use rmp_rpc::{Utf8String, Value};
+use msgpack_rpc::{Utf8String, Value};
 
 #[derive(Debug, Clone, Copy)]
 pub struct YawMode {
@@ -19,7 +19,7 @@ impl YawMode {
             (Value::String(is_rate_str), Value::Boolean(self.is_rate)),
             (Value::String(yaw_or_rate_str), Value::F32(self.yaw_or_rate)),
         ]);
-        let msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
+        let msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
         Value::Map(msg)
     }
 }

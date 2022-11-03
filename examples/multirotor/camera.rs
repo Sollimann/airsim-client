@@ -79,7 +79,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // use camera
     log::info!("get vehicle image");
-    client.sim_get_image("low_res", ImageType::Scene, Some(false)).await?;
+    client.sim_get_image("high_res", ImageType::Scene, Some(false)).await?;
     // log::info!("image response: {}");
 
     client.arm_disarm(false).await?;

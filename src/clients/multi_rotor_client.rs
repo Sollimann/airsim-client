@@ -1,7 +1,7 @@
 use core::panic;
 
 use async_std::net::ToSocketAddrs;
-use rmp_rpc::Utf8String;
+use msgpack_rpc::Utf8String;
 use rmpv::Value;
 
 use crate::types::drive_train::DrivetrainType;
@@ -186,10 +186,10 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByVelocityBodyFrame".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(velocity.vx),
-                    rmp_rpc::Value::F32(velocity.vy),
-                    rmp_rpc::Value::F32(velocity.vz),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(velocity.vx),
+                    msgpack_rpc::Value::F32(velocity.vy),
+                    msgpack_rpc::Value::F32(velocity.vz),
+                    msgpack_rpc::Value::F32(duration),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
                     Value::String(vehicle_name),
@@ -223,10 +223,10 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByVelocityZBodyFrame".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(velocity.vx),
-                    rmp_rpc::Value::F32(velocity.vy),
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(velocity.vx),
+                    msgpack_rpc::Value::F32(velocity.vy),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(duration),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
                     Value::String(vehicle_name),
@@ -280,10 +280,10 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByVelocity".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(velocity.vx),
-                    rmp_rpc::Value::F32(velocity.vy),
-                    rmp_rpc::Value::F32(velocity.vz),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(velocity.vx),
+                    msgpack_rpc::Value::F32(velocity.vy),
+                    msgpack_rpc::Value::F32(velocity.vz),
+                    msgpack_rpc::Value::F32(duration),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
                     Value::String(vehicle_name),
@@ -317,10 +317,10 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByVelocityZ".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(velocity.vx),
-                    rmp_rpc::Value::F32(velocity.vy),
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(velocity.vx),
+                    msgpack_rpc::Value::F32(velocity.vy),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(duration),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
                     Value::String(vehicle_name),
@@ -379,15 +379,15 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveToPosition".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(position.x),
-                    rmp_rpc::Value::F32(position.y),
-                    rmp_rpc::Value::F32(position.z),
-                    rmp_rpc::Value::F32(velocity),
-                    rmp_rpc::Value::F32(timeout_sec),
+                    msgpack_rpc::Value::F32(position.x),
+                    msgpack_rpc::Value::F32(position.y),
+                    msgpack_rpc::Value::F32(position.z),
+                    msgpack_rpc::Value::F32(velocity),
+                    msgpack_rpc::Value::F32(timeout_sec),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
-                    rmp_rpc::Value::F32(lookahead),
-                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    msgpack_rpc::Value::F32(lookahead),
+                    msgpack_rpc::Value::F32(adaptive_lookahead),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -427,12 +427,12 @@ impl MultiRotorClient {
                 "moveOnPath".into(),
                 Some(vec![
                     path.as_msgpack(),
-                    rmp_rpc::Value::F32(velocity),
-                    rmp_rpc::Value::F32(timeout_sec),
+                    msgpack_rpc::Value::F32(velocity),
+                    msgpack_rpc::Value::F32(timeout_sec),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
-                    rmp_rpc::Value::F32(lookahead),
-                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    msgpack_rpc::Value::F32(lookahead),
+                    msgpack_rpc::Value::F32(adaptive_lookahead),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -471,15 +471,15 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveToGPS".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(geopoint.latitude),
-                    rmp_rpc::Value::F32(geopoint.longitude),
-                    rmp_rpc::Value::F32(geopoint.altitude),
-                    rmp_rpc::Value::F32(velocity),
-                    rmp_rpc::Value::F32(timeout_sec),
+                    msgpack_rpc::Value::F32(geopoint.latitude),
+                    msgpack_rpc::Value::F32(geopoint.longitude),
+                    msgpack_rpc::Value::F32(geopoint.altitude),
+                    msgpack_rpc::Value::F32(velocity),
+                    msgpack_rpc::Value::F32(timeout_sec),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
-                    rmp_rpc::Value::F32(lookahead),
-                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    msgpack_rpc::Value::F32(lookahead),
+                    msgpack_rpc::Value::F32(adaptive_lookahead),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -516,12 +516,12 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveToZ".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(velocity),
-                    rmp_rpc::Value::F32(timeout_sec),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(velocity),
+                    msgpack_rpc::Value::F32(timeout_sec),
                     yaw_mode.as_msgpack(),
-                    rmp_rpc::Value::F32(lookahead),
-                    rmp_rpc::Value::F32(adaptive_lookahead),
+                    msgpack_rpc::Value::F32(lookahead),
+                    msgpack_rpc::Value::F32(adaptive_lookahead),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -557,10 +557,10 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByManual".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(v_max.vx),
-                    rmp_rpc::Value::F32(v_max.vy),
-                    rmp_rpc::Value::F32(z_min),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(v_max.vx),
+                    msgpack_rpc::Value::F32(v_max.vy),
+                    msgpack_rpc::Value::F32(z_min),
+                    msgpack_rpc::Value::F32(duration),
                     drivetrain.as_msgpack(),
                     yaw_mode.as_msgpack(),
                     Value::String(vehicle_name),
@@ -608,11 +608,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByMotorPWMs".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(pwm.front_right_pwm),
-                    rmp_rpc::Value::F32(pwm.rear_left_pwm),
-                    rmp_rpc::Value::F32(pwm.front_left_pwm),
-                    rmp_rpc::Value::F32(pwm.rear_right_pwm),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(pwm.front_right_pwm),
+                    msgpack_rpc::Value::F32(pwm.rear_left_pwm),
+                    msgpack_rpc::Value::F32(pwm.front_left_pwm),
+                    msgpack_rpc::Value::F32(pwm.rear_right_pwm),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -690,11 +690,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByRollPitchYawZ".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation.roll),
-                    rmp_rpc::Value::F32(-rotation.pitch),
-                    rmp_rpc::Value::F32(-rotation.yaw),
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation.roll),
+                    msgpack_rpc::Value::F32(-rotation.pitch),
+                    msgpack_rpc::Value::F32(-rotation.yaw),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -726,11 +726,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByRollPitchYawThrottle".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation.roll),
-                    rmp_rpc::Value::F32(-rotation.pitch),
-                    rmp_rpc::Value::F32(-rotation.yaw),
-                    rmp_rpc::Value::F32(throttle_z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation.roll),
+                    msgpack_rpc::Value::F32(-rotation.pitch),
+                    msgpack_rpc::Value::F32(-rotation.yaw),
+                    msgpack_rpc::Value::F32(throttle_z),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -763,11 +763,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByRollPitchYawrateThrottle".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation.roll),
-                    rmp_rpc::Value::F32(-rotation.pitch),
-                    rmp_rpc::Value::F32(-yaw_rate),
-                    rmp_rpc::Value::F32(throttle_z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation.roll),
+                    msgpack_rpc::Value::F32(-rotation.pitch),
+                    msgpack_rpc::Value::F32(-yaw_rate),
+                    msgpack_rpc::Value::F32(throttle_z),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -797,11 +797,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByRollPitchYawrateZ".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation.roll),
-                    rmp_rpc::Value::F32(-rotation.pitch),
-                    rmp_rpc::Value::F32(-yaw_rate),
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation.roll),
+                    msgpack_rpc::Value::F32(-rotation.pitch),
+                    msgpack_rpc::Value::F32(-yaw_rate),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -830,11 +830,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByAngleRatesZ".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation_rates.roll),
-                    rmp_rpc::Value::F32(-rotation_rates.pitch),
-                    rmp_rpc::Value::F32(-rotation_rates.yaw),
-                    rmp_rpc::Value::F32(z),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation_rates.roll),
+                    msgpack_rpc::Value::F32(-rotation_rates.pitch),
+                    msgpack_rpc::Value::F32(-rotation_rates.yaw),
+                    msgpack_rpc::Value::F32(z),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )
@@ -866,11 +866,11 @@ impl MultiRotorClient {
             .unary_rpc(
                 "moveByAngleRatesThrottle".into(),
                 Some(vec![
-                    rmp_rpc::Value::F32(rotation_rates.roll),
-                    rmp_rpc::Value::F32(-rotation_rates.pitch),
-                    rmp_rpc::Value::F32(-rotation_rates.yaw),
-                    rmp_rpc::Value::F32(throttle),
-                    rmp_rpc::Value::F32(duration),
+                    msgpack_rpc::Value::F32(rotation_rates.roll),
+                    msgpack_rpc::Value::F32(-rotation_rates.pitch),
+                    msgpack_rpc::Value::F32(-rotation_rates.yaw),
+                    msgpack_rpc::Value::F32(throttle),
+                    msgpack_rpc::Value::F32(duration),
                     Value::String(vehicle_name),
                 ]),
             )

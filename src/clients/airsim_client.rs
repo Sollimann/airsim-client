@@ -1,5 +1,5 @@
 use async_std::net::ToSocketAddrs;
-use rmp_rpc::{
+use msgpack_rpc::{
     message::{Request, Response},
     Utf8String,
 };
