@@ -1,10 +1,10 @@
-<h1 align="center" font-size:4em;"> Rust Airsim Client </h1>
+<h1 align="center" font-size:4em;"> Rust Airsim </h1>
 <p align="center">
-  <img src="https://github.com/Sollimann/airsim-client/blob/main/docs/drone_lobby.png" width="350">
+  <img src="https://github.com/Sollimann/airsim-client/blob/main/docs/drone_lobby.png" width="750">
 </p>
 
 <p align="center">
-    <em>Rust implementation of Behavior Trees</em>
+    <em> A Rust Client library for Microsoft Airsim</em>
 </p>
 
 ## How to use
