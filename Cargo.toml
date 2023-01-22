@@ -1,5 +1,5 @@
 [package]
-authors = ["Kristoffer Solberg Rakstad <kristoffer.solberg@cognite.com>"]
+authors = ["Kristoffer Solberg Rakstad <solkristoffer@gmail.com>"]
 autotests = false
 categories = ["game"]
 description = "A Rust client library for Airsim."
