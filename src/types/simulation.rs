@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Value};
+use msgpack_rpc::{message::Response, Value};
 
 #[derive(Debug, Clone)]
 /// List containing all the names of objects in the simulation scene

@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Value};
+use msgpack_rpc::{message::Response, Utf8String, Value};
 
 #[derive(Debug, Clone, Copy)]
 pub enum ImageType {
@@ -41,16 +41,54 @@ impl From<Response> for CompressedImage {
 
         match msgpack.result {
             Ok(res) => {
-                println!("image: {res:?}");
-                let payload: &Vec<Value> = res.as_array().unwrap();
-                for v in payload {
-                    let p = v.as_u64().unwrap() as u8;
-                    pixels.push(p);
+                let slice: &[u8] = res.as_slice().unwrap();
+                for p in slice {
+                    pixels.push(*p);
                 }
             }
             Err(_) => panic!("Could not decode result from CompressedImage msgpack"),
         };
 
         Self(pixels)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ImageRequest {
+    pub camera_name: String,
+    pub image_type: ImageType,
+    pub pixels_as_float: bool,
+    pub compress: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct ImageRequests(pub Vec<ImageRequest>);
+
+impl ImageRequest {
+    pub(crate) fn as_msgpack(&self) -> Value {
+        let camera_name: Utf8String = "camera_name".into();
+        let image_type: Utf8String = "image_type".into();
+        let pixels_as_float: Utf8String = "pixels_as_float".into();
+        let compress: Utf8String = "compress".into();
+
+        let val = Value::Map(vec![
+            (
+                Value::String(camera_name),
+                Value::String(self.camera_name.to_owned().into()),
+            ),
+            (Value::String(image_type), self.image_type.as_msgpack()),
+            (Value::String(pixels_as_float), Value::Boolean(self.pixels_as_float)),
+            (Value::String(compress), Value::Boolean(self.compress)),
+        ]);
+
+        let msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
+        Value::Map(msg)
+    }
+}
+
+impl ImageRequests {
+    pub(crate) fn as_msgpack(&self) -> Value {
+        let images = self.0.iter().cloned().map(|img| img.as_msgpack()).collect();
+        Value::Array(images)
     }
 }

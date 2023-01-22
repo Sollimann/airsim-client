@@ -67,20 +67,32 @@ async fn connect_drone() -> NetworkResult<()> {
     let res = client.confirm_connection().await?;
     log::info!("Response: {:?}", res);
 
-    // // arm drone
-    // log::info!("arm drone");
-    // client.arm_disarm(true).await?;
-    // log::info!("Response: {:?}", res);
+    // arm drone
+    log::info!("arm drone");
+    client.arm_disarm(true).await?;
+    log::info!("Response: {:?}", res);
 
-    // // take off
-    // log::info!("take off drone");
-    // client.take_off_async(20.0).await?;
-    // log::info!("take off completed");
+    // take off
+    log::info!("take off drone");
+    client.take_off_async(20.0).await?;
+    log::info!("take off completed");
 
     // use camera
-    log::info!("get vehicle image");
-    client.sim_get_image("low_res", ImageType::Scene, Some(false)).await?;
-    // log::info!("image response: {}");
+    log::info!("get vehicle images");
+    let img = client.sim_get_image("high_res", ImageType::Scene, Some(false)).await?;
+    // let _img = client
+    //     .sim_get_images(
+    //         ImageRequests(vec![ImageRequest {
+    //             camera_name: "high_res".to_string(),
+    //             image_type: ImageType::Scene,
+    //             pixels_as_float: false,
+    //             compress: false,
+    //         }]),
+    //         Some(false),
+    //     )
+    //     .await;
+
+    log::info!("image response: {img:?}");
 
     client.arm_disarm(false).await?;
     client.enable_api_control(false).await?;

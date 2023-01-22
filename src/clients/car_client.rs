@@ -1,5 +1,5 @@
 use async_std::net::ToSocketAddrs;
-use rmp_rpc::Utf8String;
+use msgpack_rpc::Utf8String;
 use rmpv::Value;
 
 use crate::error::NetworkResult;

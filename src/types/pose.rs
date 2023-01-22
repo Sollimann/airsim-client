@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Utf8String, Value};
+use msgpack_rpc::{message::Response, Utf8String, Value};
 
 use crate::Vector3;
 
@@ -96,7 +96,7 @@ impl Pose3 {
             (Value::String(z_val.to_owned()), Value::F32(self.position.z)),
         ]);
 
-        let pos_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = position.as_map().map(|x| x.to_owned()).unwrap();
+        let pos_msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> = position.as_map().map(|x| x.to_owned()).unwrap();
         let position_msg = Value::Map(pos_msg);
 
         // orientation
@@ -109,7 +109,8 @@ impl Pose3 {
             (Value::String(z_val), Value::F32(self.orientation.z)),
         ]);
 
-        let orr_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = orientation.as_map().map(|x| x.to_owned()).unwrap();
+        let orr_msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> =
+            orientation.as_map().map(|x| x.to_owned()).unwrap();
         let orientation_msg = Value::Map(orr_msg);
 
         // pose
@@ -121,7 +122,7 @@ impl Pose3 {
             (Value::String(orientation_key), orientation_msg),
         ]);
 
-        let pose_msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = pose.as_map().map(|x| x.to_owned()).unwrap();
+        let pose_msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> = pose.as_map().map(|x| x.to_owned()).unwrap();
         Value::Map(pose_msg)
     }
 }

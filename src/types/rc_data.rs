@@ -1,4 +1,4 @@
-use rmp_rpc::{Utf8String, Value};
+use msgpack_rpc::{Utf8String, Value};
 
 use super::pose::Orientation3;
 
@@ -68,7 +68,7 @@ impl RCData {
             (Value::String(is_valid), Value::Boolean(self.is_valid)),
         ]);
 
-        let msg: Vec<(rmp_rpc::Value, rmp_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
+        let msg: Vec<(msgpack_rpc::Value, msgpack_rpc::Value)> = val.as_map().map(|x| x.to_owned()).unwrap();
         Value::Map(msg)
     }
 }

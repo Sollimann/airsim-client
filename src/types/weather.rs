@@ -1,4 +1,4 @@
-use rmp_rpc::Value;
+use msgpack_rpc::Value;
 
 #[derive(Debug, Clone, Copy)]
 pub enum WeatherParameter {

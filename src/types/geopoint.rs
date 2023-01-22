@@ -1,4 +1,4 @@
-use rmp_rpc::{message::Response, Value};
+use msgpack_rpc::{message::Response, Value};
 
 #[derive(Debug, Clone, Copy)]
 pub struct GeoPoint {

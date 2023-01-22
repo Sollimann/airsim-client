@@ -1,4 +1,4 @@
-use rmp_rpc::Value;
+use msgpack_rpc::Value;
 
 use crate::Vector3;
 

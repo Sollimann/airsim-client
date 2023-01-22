@@ -1,12 +1,12 @@
 #![allow(dead_code)]
-use async_std::channel::{bounded, Receiver, Sender};
+use async_std::channel::{unbounded, Receiver, Sender};
 use async_std::io::prelude::*;
 use async_std::net::{TcpStream, ToSocketAddrs};
 use async_std::sync::{Arc, Mutex};
 use async_std::task;
 use futures::future::FutureExt;
 use futures::select;
-use rmp_rpc::message::{Message, Notification, Request, Response};
+use msgpack_rpc::message::{Message, Notification, Request, Response};
 use std::collections::HashMap;
 use std::io::Cursor;
 
@@ -35,10 +35,10 @@ impl MsgPackClient {
         let mut stream = TcpStream::connect(addrs).await?;
         let response_channels = Arc::new(Mutex::new(HashMap::new()));
 
-        let (request_sender, request_receiver) = bounded::<Request>(100);
-        let (inner_request_sender, inner_request_receiver) = bounded::<Request>(100);
-        let (notification_sender, notification_receiver) = bounded::<Notification>(100);
-        let (inner_notification_sender, inner_notification_receiver) = bounded::<Notification>(100);
+        let (request_sender, request_receiver) = unbounded::<Request>();
+        let (inner_request_sender, inner_request_receiver) = unbounded::<Request>();
+        let (notification_sender, notification_receiver) = unbounded::<Notification>();
+        let (inner_notification_sender, inner_notification_receiver) = unbounded::<Notification>();
         let res_channels = Arc::clone(&response_channels);
 
         task::spawn(async move {
@@ -46,12 +46,12 @@ impl MsgPackClient {
 
             // 1,024 bytes = 1 kB
             // 1kB x 1000 = 1mB
-            let buf_size: usize = 1024 * 1000; // 0.1mB
+            let buf_size: usize = 1024 * 50; // 0.1mB
 
             // for some reason, msgpack expects a fixed size
             // for the bytes buffer
             let mut buf = vec![0_u8; buf_size];
-            // let mut buf = vec![];
+
             loop {
                 let to_process = select! {
                     maybe_request = request_receiver.recv().fuse() => {
@@ -82,10 +82,9 @@ impl MsgPackClient {
                         stream.write_all(&message).await.expect("Couldn't send message");
                     }
                     Some(Rpc::Receive(n)) => {
-                        println!("received {n} bytes");
                         current_message.extend(&buf[..n]);
                         let mut frame = Cursor::new(current_message.clone());
-                        println!("frame {frame:?}");
+
                         let recv_res = match Message::decode(&mut frame) {
                             Ok(Message::Notification(n)) => inner_notification_sender
                                 .send(n)
@@ -137,7 +136,7 @@ impl MsgPackClient {
     }
 
     pub async fn request(&self, request: Request) -> Result<Response, NetworkError> {
-        let (response_sender, response_receiver) = bounded(1);
+        let (response_sender, response_receiver) = unbounded();
 
         // add the response sender (forwards the response from the server) by request id
         let _ = self.response_channels.lock().await.insert(request.id, response_sender);

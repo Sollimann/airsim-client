@@ -1,4 +1,4 @@
-use rmp_rpc::Value;
+use msgpack_rpc::Value;
 
 #[derive(Debug, Clone, Copy)]
 /// Struct to store values of PID gains. Used to transmit controller gain values while instantiating

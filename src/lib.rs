@@ -1,11 +1,12 @@
 pub use clients::airsim_client::AirsimClient;
 pub use clients::car_client::CarClient;
 pub use clients::multi_rotor_client::MultiRotorClient;
-pub use error::{DecodeError, NetworkError, NetworkResult};
+pub use error::{NetworkError, NetworkResult};
+pub use msgpack_rpc::DecodeError;
 pub use types::drive_train::DrivetrainType;
 pub use types::gains::{AngularControllerGains, LinearControllerGains, PIDGains};
 pub use types::geopoint::GeoPoint;
-pub use types::image::{CompressedImage, ImageType};
+pub use types::image::{CompressedImage, ImageRequest, ImageRequests, ImageType};
 pub use types::path::Path;
 pub use types::pose::{Orientation2, Orientation3, Pose3, Position3, Quaternion, Velocity2, Velocity3};
 pub use types::pwm::PWM;
