@@ -11,7 +11,7 @@
     <em> Contributions are welcome! </em>
 </p>
 
-[![Build Status](https://github.com/Sollimann/airsim-client/workflows/rust-ci/badge.svg)](https://github.com/Sollimann/airsim-client/actions)
+[![Build Status](https://github.com/Sollimann/airsim-client/actions/workflows/rust-ci.yml/badge.svg?event=push)](https://github.com/Sollimann/airsim-client/actions)
 [![airsim-client crate](https://img.shields.io/crates/v/airsim-client.svg)](https://crates.io/crates/airsim-client)
 [![minimum rustc 1.56](https://img.shields.io/badge/rustc-1.56+-blue.svg)](https://rust-lang.github.io/rfcs/2495-min-rust-version.html)
 [![Docs](https://docs.rs/airsim-client/badge.svg)](https://docs.rs/airsim-client)
