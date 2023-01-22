@@ -7,6 +7,10 @@
     <em> A Rust Client library for Microsoft Airsim</em>
 </p>
 
+<p align="center">
+    <em> Contributions are welcome! </em>
+</p>
+
 ## How to use
 
 See [examples](examples/) folder for more!
