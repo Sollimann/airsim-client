@@ -9,7 +9,7 @@ use futures::{
 };
 
 async fn connect_drone() -> NetworkResult<()> {
-    let address = "172.21.112.1:41451"; // set with env variable
+    let address = "127.0.0.1:41451"; // set with env variable
     let vehicle_name = "";
 
     log::info!("Start!");
@@ -20,12 +20,12 @@ async fn connect_drone() -> NetworkResult<()> {
 
     // confirm connect
     log::info!("confirm connection");
-    let res = client.confirm_connection().await?;
+    let mut res = client.confirm_connection().await?;
     log::info!("Response: {:?}", res);
 
     // arm drone
     log::info!("arm drone");
-    client.arm_disarm(true).await?;
+    res = client.arm_disarm(true).await?;
     log::info!("Response: {:?}", res);
 
     // take off
@@ -37,7 +37,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("get home geo point");
     let geopoint = client.get_home_geo_point().await.unwrap();
-    println!("geopoint: {:?}", geopoint);
+    println!("Geopoint: {:?}", geopoint);
 
     // OPTIONAL - set gains
     // log::info!("set position controller PID gains");
@@ -77,7 +77,7 @@ async fn connect_drone() -> NetworkResult<()> {
         .await?;
 
     log::info!("go to geopoint");
-    client
+    res = client
         .move_to_gps_async(
             geopoint,
             6.0,
@@ -88,15 +88,15 @@ async fn connect_drone() -> NetworkResult<()> {
             None,
         )
         .await?;
-    log::info!("finished going to geopoint");
+    log::info!("Finished going to geopoint: {:?}", res);
 
     log::info!("go home");
-    client.go_home_async(20.0).await?;
-    log::info!("got home");
+    res = client.go_home_async(20.0).await?;
+    log::info!("Got home: {:?}", res);
 
     log::info!("land drone");
-    let landed = client.land_async(20.0).await?;
-    log::info!("drone landed: {}", landed);
+    res = client.land_async(20.0).await?;
+    log::info!("Drone landed: {:?}", res);
 
     client.arm_disarm(false).await?;
     client.enable_api_control(false).await?;
