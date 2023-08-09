@@ -411,6 +411,18 @@ impl AirsimClient {
         .map(|response| response.result.is_ok() && response.result.unwrap().as_bool() == Some(true))
     }
 
+    /// Cancel previous Async task
+    ///
+    /// args:
+    ///      vehicle_name (Option<&str>): Name of the vehicle to send this command to
+    pub(crate) async fn cancel_last_task(&self, vehicle_name: Option<&str>) -> NetworkResult<bool> {
+        let vehicle_name: Utf8String = vehicle_name.unwrap_or("").into();
+
+        self.unary_rpc("cancelLastTask".into(), Some(vec![Value::String(vehicle_name)]))
+            .await
+            .map(|response| response.result.is_ok())
+    }
+
     /// Returns true if API control is established.
     ///
     /// If false (which is default) then API calls would be ignored. After a successful call
