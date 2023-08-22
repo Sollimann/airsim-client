@@ -31,7 +31,7 @@ async fn connect_drone() -> NetworkResult<()> {
     // confirm connect
     log::info!("confirm connection");
     let res = client.confirm_connection().await?;
-    log::info!("Response: {:?}", res);
+    log::info!("Response: {res:?}");
 
     // arm drone
     log::info!("arm drone");
