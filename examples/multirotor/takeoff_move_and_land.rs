@@ -96,7 +96,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("land drone");
     res = client.land_async(20.0).await?;
-    log::info!("Drone landed: {:?}", res);
+    log::info!("Drone landed: {res:?}");
 
     client.arm_disarm(false).await?;
     client.enable_api_control(false).await?;
