@@ -88,7 +88,7 @@ async fn connect_drone() -> NetworkResult<()> {
             None,
         )
         .await?;
-    log::info!("Finished going to geopoint: {:?}", res);
+    log::info!("Finished going to geopoint: {res:?}");
 
     log::info!("go home");
     res = client.go_home_async(20.0).await?;
