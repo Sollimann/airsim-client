@@ -37,7 +37,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("get home geo point");
     let geopoint = client.get_home_geo_point().await.unwrap();
-    println!("Geopoint: {:?}", geopoint);
+    println!("Geopoint: {geopoint:?}");
 
     // OPTIONAL - set gains
     // log::info!("set position controller PID gains");
