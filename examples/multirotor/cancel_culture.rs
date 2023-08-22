@@ -67,7 +67,7 @@ async fn connect_drone() -> NetworkResult<()> {
     // disarm drone
     log::info!("disarm drone");
     let res = client.arm_disarm(false).await?;
-    log::info!("Response: {:?}", res);
+    log::info!("Response: {res:?}");
 
     // reset drone
     task::sleep(Duration::from_secs(1)).await;
