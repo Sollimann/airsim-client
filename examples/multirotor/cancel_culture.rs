@@ -62,7 +62,7 @@ async fn connect_drone() -> NetworkResult<()> {
     // land drone
     log::info!("land drone");
     let res = client.land_async(20.0).await?;
-    log::info!("Response: {:?}", res);
+    log::info!("Response: {res:?}");
 
     // disarm drone
     log::info!("disarm drone");
