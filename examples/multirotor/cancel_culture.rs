@@ -36,7 +36,7 @@ async fn connect_drone() -> NetworkResult<()> {
     // arm drone
     log::info!("arm drone");
     let res = client.arm_disarm(true).await?;
-    log::info!("Response: {:?}", res);
+    log::info!("Response: {res:?}");
 
     // Start the canceller at the background
     task::spawn(cancel_ongoing_async());
