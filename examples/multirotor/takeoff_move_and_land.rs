@@ -92,7 +92,7 @@ async fn connect_drone() -> NetworkResult<()> {
 
     log::info!("go home");
     res = client.go_home_async(20.0).await?;
-    log::info!("Got home: {:?}", res);
+    log::info!("Got home: {res:?}");
 
     log::info!("land drone");
     res = client.land_async(20.0).await?;
