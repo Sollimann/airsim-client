@@ -77,6 +77,12 @@ impl MultiRotorClient {
             .await
     }
 
+    /// Cancel previous Async task
+    #[inline(always)]
+    pub async fn cancel_last_task(&self) -> NetworkResult<bool> {
+        self.airsim_client.cancel_last_task(Some(self.vehicle_name)).await
+    }
+
     /// Returns true if API control is established.
     ///
     /// If false (which is default) then API calls would be ignored. After a successful call
